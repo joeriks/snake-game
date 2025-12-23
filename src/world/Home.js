@@ -115,6 +115,7 @@ export class Home {
             color: 0x8B4513,
             roughness: 0.9
         });
+        const chimney = new THREE.Mesh(chimneyGeometry, chimneyMaterial);
         chimney.position.set(3, 5, -1);
         chimney.castShadow = true;
 
