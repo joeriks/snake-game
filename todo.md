@@ -10,7 +10,7 @@
 - [x] det ska ta lite längre tid mellan att man går tills att man börjar springa
 - [x] ljudet ska ändras när man springer
 
-- [x] det uppstår något fel när man klickar i dialogrutan för att fånga en orm, jag tror det är för att spelet då går in i navigera-med-musen-läge
+- [ ] det uppstår något fel när man klickar i dialogrutan för att fånga en orm, jag tror det är för att spelet då går in i navigera-med-musen-läge
 
 - [x] gör så att man kan köpa terrarier
 

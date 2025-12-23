@@ -254,145 +254,144 @@ export class Game {
             this.populateBreeding();
         }
     }
-}
 
-closeAllPanels() {
-    const container = document.getElementById('panel-container');
-    document.querySelectorAll('.panel').forEach(p => {
-        p.classList.remove('active');
-    });
-    audioManager.playPanelClose();
-    setTimeout(() => container.classList.add('hidden'), 250);
-}
-
-handleCanvasClick(event) {
-    // Try to interact with nearby snake
-    if (this.world && this.world.nearbySnake) {
-        this.world.interactWithNearbySnake();
-    }
-}
-
-/**
- * Called when player discovers a snake in the world
- */
-handleSnakeDiscovery(snakeData) {
-    // Generate snake using seeded data for consistency
-    const snake = this.genetics.generateWildSnakeFromSeed(
-        snakeData.seed,
-        snakeData.species,
-        snakeData.rarity
-    );
-    this.currentEncounter = snake;
-    this.currentEncounterData = snakeData; // Store world data for marking collected
-
-    // Show encounter modal
-    this.showEncounterModal(snake);
-}
-
-/**
- * Show the encounter modal with snake info
- */
-showEncounterModal(snake) {
-    audioManager.playSnakeDiscovery();
-
-    // Release pointer lock
-    if (this.world) this.world.enableUI();
-
-    const modal = document.getElementById('encounter-modal');
-    document.getElementById('encounter-name').textContent = snake.getDisplayName();
-    document.getElementById('encounter-species').textContent = snake.getSpeciesName();
-    document.getElementById('encounter-value').textContent = `Est. Value: $${snake.calculatePrice()}`;
-
-    // Show morph image
-    const previewContainer = document.getElementById('encounter-snake-preview');
-    const morphImage = snake.getMorphImage();
-    if (morphImage) {
-        previewContainer.innerHTML = `<img src="${morphImage}" alt="${snake.getDisplayName()}" class="morph-photo" onerror="this.style.display='none'; this.parentElement.innerHTML='🐍';">`;
-    } else {
-        previewContainer.innerHTML = '🐍';
-    }
-
-    // Populate genetics
-    const geneticsContainer = document.getElementById('encounter-genetics');
-    geneticsContainer.innerHTML = '';
-
-    snake.getVisualGenes().forEach(gene => {
-        const tag = document.createElement('span');
-        tag.className = 'gene-tag visual';
-        tag.textContent = gene;
-        geneticsContainer.appendChild(tag);
-    });
-
-    snake.getHetGenes().forEach(gene => {
-        const tag = document.createElement('span');
-        tag.className = 'gene-tag het';
-        tag.textContent = `Het ${gene}`;
-        geneticsContainer.appendChild(tag);
-    });
-
-    modal.classList.remove('hidden');
-}
-
-captureSnake() {
-    if (this.currentEncounter) {
-        audioManager.playSnakeCapture();
-        this.state.collection.push(this.currentEncounter);
-
-        // Track discovered morphs
-        this.currentEncounter.getVisualGenes().forEach(gene => {
-            this.state.discoveredMorphs.add(gene);
+    closeAllPanels() {
+        const container = document.getElementById('panel-container');
+        document.querySelectorAll('.panel').forEach(p => {
+            p.classList.remove('active');
         });
+        audioManager.playPanelClose();
+        setTimeout(() => container.classList.add('hidden'), 250);
+    }
 
-        // Mark the world snake as collected so it disappears
-        if (this.currentEncounterData) {
-            this.currentEncounterData.collected = true;
-            // Hide the visual elements
-            this.currentEncounterData.spot.visible = false;
-            this.currentEncounterData.rustle.visible = false;
+    handleCanvasClick(event) {
+        // Try to interact with nearby snake
+        if (this.world && this.world.nearbySnake) {
+            this.world.interactWithNearbySnake();
+        }
+    }
+
+    /**
+     * Called when player discovers a snake in the world
+     */
+    handleSnakeDiscovery(snakeData) {
+        // Generate snake using seeded data for consistency
+        const snake = this.genetics.generateWildSnakeFromSeed(
+            snakeData.seed,
+            snakeData.species,
+            snakeData.rarity
+        );
+        this.currentEncounter = snake;
+        this.currentEncounterData = snakeData; // Store world data for marking collected
+
+        // Show encounter modal
+        this.showEncounterModal(snake);
+    }
+
+    /**
+     * Show the encounter modal with snake info
+     */
+    showEncounterModal(snake) {
+        audioManager.playSnakeDiscovery();
+
+        // Release pointer lock
+        if (this.world) this.world.enableUI();
+
+        const modal = document.getElementById('encounter-modal');
+        document.getElementById('encounter-name').textContent = snake.getDisplayName();
+        document.getElementById('encounter-species').textContent = snake.getSpeciesName();
+        document.getElementById('encounter-value').textContent = `Est. Value: $${snake.calculatePrice()}`;
+
+        // Show morph image
+        const previewContainer = document.getElementById('encounter-snake-preview');
+        const morphImage = snake.getMorphImage();
+        if (morphImage) {
+            previewContainer.innerHTML = `<img src="${morphImage}" alt="${snake.getDisplayName()}" class="morph-photo" onerror="this.style.display='none'; this.parentElement.innerHTML='🐍';">`;
+        } else {
+            previewContainer.innerHTML = '🐍';
         }
 
-        this.updateUI();
-        this.saveManager.save(this.getSerializableState());
+        // Populate genetics
+        const geneticsContainer = document.getElementById('encounter-genetics');
+        geneticsContainer.innerHTML = '';
+
+        snake.getVisualGenes().forEach(gene => {
+            const tag = document.createElement('span');
+            tag.className = 'gene-tag visual';
+            tag.textContent = gene;
+            geneticsContainer.appendChild(tag);
+        });
+
+        snake.getHetGenes().forEach(gene => {
+            const tag = document.createElement('span');
+            tag.className = 'gene-tag het';
+            tag.textContent = `Het ${gene}`;
+            geneticsContainer.appendChild(tag);
+        });
+
+        modal.classList.remove('hidden');
+    }
+
+    captureSnake() {
+        if (this.currentEncounter) {
+            audioManager.playSnakeCapture();
+            this.state.collection.push(this.currentEncounter);
+
+            // Track discovered morphs
+            this.currentEncounter.getVisualGenes().forEach(gene => {
+                this.state.discoveredMorphs.add(gene);
+            });
+
+            // Mark the world snake as collected so it disappears
+            if (this.currentEncounterData) {
+                this.currentEncounterData.collected = true;
+                // Hide the visual elements
+                this.currentEncounterData.spot.visible = false;
+                this.currentEncounterData.rustle.visible = false;
+            }
+
+            this.updateUI();
+            this.saveManager.save(this.getSerializableState());
+            this.closeEncounterModal();
+
+            console.log('🐍 Captured:', this.currentEncounter.getDisplayName());
+        }
+    }
+
+    releaseSnake() {
         this.closeEncounterModal();
-
-        console.log('🐍 Captured:', this.currentEncounter.getDisplayName());
-    }
-}
-
-releaseSnake() {
-    this.closeEncounterModal();
-}
-
-closeEncounterModal() {
-    document.getElementById('encounter-modal').classList.add('hidden');
-    this.currentEncounter = null;
-
-    // Allow playing again
-    if (this.world) this.world.disableUI();
-}
-
-populateCollection() {
-    const grid = document.getElementById('snake-grid');
-    grid.innerHTML = '';
-
-    if (this.state.collection.length === 0) {
-        grid.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1;">No snakes yet. Go explore!</p>';
-        return;
     }
 
-    this.state.collection.forEach((snake, index) => {
-        const card = this.createSnakeCard(snake, index);
-        grid.appendChild(card);
-    });
-}
+    closeEncounterModal() {
+        document.getElementById('encounter-modal').classList.add('hidden');
+        this.currentEncounter = null;
 
-createSnakeCard(snake, index) {
-    const card = document.createElement('div');
-    card.className = 'snake-card';
-    card.dataset.rarity = snake.getRarityTier();
-    card.dataset.index = index;
+        // Allow playing again
+        if (this.world) this.world.disableUI();
+    }
 
-    card.innerHTML = `
+    populateCollection() {
+        const grid = document.getElementById('snake-grid');
+        grid.innerHTML = '';
+
+        if (this.state.collection.length === 0) {
+            grid.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1;">No snakes yet. Go explore!</p>';
+            return;
+        }
+
+        this.state.collection.forEach((snake, index) => {
+            const card = this.createSnakeCard(snake, index);
+            grid.appendChild(card);
+        });
+    }
+
+    createSnakeCard(snake, index) {
+        const card = document.createElement('div');
+        card.className = 'snake-card';
+        card.dataset.rarity = snake.getRarityTier();
+        card.dataset.index = index;
+
+        card.innerHTML = `
       <div class="preview">🐍</div>
       <div class="info">
         <div class="name">${snake.getDisplayName()}</div>
@@ -401,27 +400,27 @@ createSnakeCard(snake, index) {
       </div>
     `;
 
-    return card;
-}
-
-populateMarket() {
-    // Default to sell tab
-    this.populateMarketSell();
-}
-
-populateMarketSell() {
-    const listings = document.getElementById('market-listings');
-    listings.innerHTML = '';
-
-    if (this.state.collection.length === 0) {
-        listings.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1;">You have no snakes to sell.</p>';
-        return;
+        return card;
     }
 
-    this.state.collection.forEach((snake, index) => {
-        const card = document.createElement('div');
-        card.className = 'snake-card';
-        card.innerHTML = `
+    populateMarket() {
+        // Default to sell tab
+        this.populateMarketSell();
+    }
+
+    populateMarketSell() {
+        const listings = document.getElementById('market-listings');
+        listings.innerHTML = '';
+
+        if (this.state.collection.length === 0) {
+            listings.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1;">You have no snakes to sell.</p>';
+            return;
+        }
+
+        this.state.collection.forEach((snake, index) => {
+            const card = document.createElement('div');
+            card.className = 'snake-card';
+            card.innerHTML = `
                 <div class="preview">🐍</div>
                 <div class="info">
                     <div class="name">${snake.getDisplayName()}</div>
@@ -431,31 +430,31 @@ populateMarketSell() {
                 <button class="action-btn small" data-index="${index}">Sell</button>
             `;
 
-        card.querySelector('button').addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.sellSnake(index);
+            card.querySelector('button').addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.sellSnake(index);
+            });
+
+            listings.appendChild(card);
         });
+    }
 
-        listings.appendChild(card);
-    });
-}
+    populateMarketBuy() {
+        const listings = document.getElementById('market-listings');
+        listings.innerHTML = '';
 
-populateMarketBuy() {
-    const listings = document.getElementById('market-listings');
-    listings.innerHTML = '';
+        // Generate some random listings if not already cached (could be added to state later)
+        // For now, generate on fly for demo
+        const speciesAvailable = ['western', 'eastern'];
 
-    // Generate some random listings if not already cached (could be added to state later)
-    // For now, generate on fly for demo
-    const speciesAvailable = ['western', 'eastern'];
+        for (let i = 0; i < 3; i++) {
+            // Mock data generation using seeded random logic ideally, but here simplified
+            const species = speciesAvailable[Math.floor(Math.random() * speciesAvailable.length)];
+            const price = 150 + Math.floor(Math.random() * 300);
 
-    for (let i = 0; i < 3; i++) {
-        // Mock data generation using seeded random logic ideally, but here simplified
-        const species = speciesAvailable[Math.floor(Math.random() * speciesAvailable.length)];
-        const price = 150 + Math.floor(Math.random() * 300);
-
-        const card = document.createElement('div');
-        card.className = 'snake-card market-item';
-        card.innerHTML = `
+            const card = document.createElement('div');
+            card.className = 'snake-card market-item';
+            card.innerHTML = `
                 <div class="preview">🐍</div>
                 <div class="info">
                     <div class="name">Mystery ${species}</div>
@@ -465,243 +464,260 @@ populateMarketBuy() {
                 <button class="action-btn small primary">Buy</button>
             `;
 
-        card.querySelector('button').addEventListener('click', () => {
-            this.buySnake({ species, price });
-        });
-
-        listings.appendChild(card);
-    }
-}
-
-
-// Generate a captive bred snake (clean genetics usually, or random simple morphs)
-const snake = this.genetics.generateWildSnake('prairie'); // Reuse generation for now
-snake.origin = 'purchased';
-
-this.state.collection.push(snake);
-
-audioManager.playCoinCollect();
-this.updateUI();
-alert(`You bought a ${snake.getDisplayName()}!`);
-    } else {
-    audioManager.playError();
-    alert("Not enough money!");
-}
-}
-
-// === BREEDING SYSTEM ===
-
-populateBreeding() {
-    this.breedingParents = { p1: null, p2: null };
-    this.updateBreedingUI();
-}
-
-handleParentSlotClick(slot) {
-    const indexStr = prompt("Enter inventory index of snake (0 to " + (this.state.collection.length - 1) + "):");
-    if (indexStr === null) return;
-
-    const index = parseInt(indexStr);
-    if (!isNaN(index) && this.state.collection[index]) {
-        if (slot === 'parent1') this.breedingParents.p1 = this.state.collection[index];
-        else this.breedingParents.p2 = this.state.collection[index];
-
-        this.updateBreedingUI();
-    }
-}
-
-updateBreedingUI() {
-    const p1Name = this.breedingParents.p1 ? this.breedingParents.p1.getDisplayName() : 'Select Female';
-    const p2Name = this.breedingParents.p2 ? this.breedingParents.p2.getDisplayName() : 'Select Male';
-
-    document.querySelector('#parent1-slot .placeholder').textContent = p1Name;
-    document.querySelector('#parent2-slot .placeholder').textContent = p2Name;
-
-    const breedBtn = document.getElementById('breed-btn');
-    const canBreed = this.breedingParents.p1 && this.breedingParents.p2;
-    if (breedBtn) breedBtn.disabled = !canBreed;
-
-    if (canBreed) {
-        this.updateBreedingPreview();
-    } else {
-        document.getElementById('offspring-preview').classList.add('hidden');
-    }
-}
-
-updateBreedingPreview() {
-    const preview = document.getElementById('offspring-preview');
-    preview.classList.remove('hidden');
-
-    const predictions = this.genetics.predictOffspring(this.breedingParents.p1, this.breedingParents.p2);
-    const container = document.getElementById('punnett-results');
-
-    if (predictions.length === 0) {
-        container.textContent = "Offspring will likely be Normal (Wild Type)";
-        return;
-    }
-
-    container.innerHTML = predictions.map(p => {
-        const outcomes = Object.entries(p.outcomes).map(([genotype, prob]) => {
-            return `<div>${genotype}: ${prob * 100}%</div>`;
-        }).join('');
-        return `<div class="prediction-group"><strong>${p.gene}</strong>${outcomes}</div>`;
-    }).join('');
-}
-
-breedSnakes() {
-    try {
-        const offspring = this.genetics.breed(this.breedingParents.p1, this.breedingParents.p2);
-
-        // Add first offspring to collection
-        if (offspring.length > 0) {
-            const baby = offspring[0];
-            this.state.collection.push(baby);
-
-            // Track discovered morphs
-            baby.getVisualGenes().forEach(gene => {
-                this.state.discoveredMorphs.add(gene);
+            card.querySelector('button').addEventListener('click', () => {
+                this.buySnake({ species, price });
             });
 
-            audioManager.playSnakeCapture(); // Victory sound
-            alert(`Breeding Successful! You got a ${baby.getDisplayName()}! (Clutch size: ${offspring.length})`);
-            this.updateUI();
-            this.closeAllPanels();
+            listings.appendChild(card);
+        }
+    }
 
-            // Reset breeding
-            this.breedingParents = { p1: null, p2: null };
+
+    sellSnake(index) {
+        const snake = this.state.collection[index];
+        const price = snake.calculatePrice();
+
+        this.state.money += price;
+        this.state.collection.splice(index, 1);
+
+        audioManager.playCoinCollect();
+        this.updateUI();
+        this.populateMarketSell(); // Refresh list
+        this.populateHome(); // Refresh home incase it was shown
+    }
+
+    buySnake(listing) {
+        if (this.state.money >= listing.price) {
+            this.state.money -= listing.price;
+
+            // Generate a captive bred snake (clean genetics usually, or random simple morphs)
+            const snake = this.genetics.generateWildSnake('prairie'); // Reuse generation for now
+            snake.origin = 'purchased';
+
+            this.state.collection.push(snake);
+
+            audioManager.playCoinCollect();
+            this.updateUI();
+            alert(`You bought a ${snake.getDisplayName()}!`);
+        } else {
+            audioManager.playError();
+            alert("Not enough money!");
+        }
+    }
+
+    // === BREEDING SYSTEM ===
+
+    populateBreeding() {
+        this.breedingParents = { p1: null, p2: null };
+        this.updateBreedingUI();
+    }
+
+    handleParentSlotClick(slot) {
+        const indexStr = prompt("Enter inventory index of snake (0 to " + (this.state.collection.length - 1) + "):");
+        if (indexStr === null) return;
+
+        const index = parseInt(indexStr);
+        if (!isNaN(index) && this.state.collection[index]) {
+            if (slot === 'parent1') this.breedingParents.p1 = this.state.collection[index];
+            else this.breedingParents.p2 = this.state.collection[index];
+
             this.updateBreedingUI();
         }
-    } catch (e) {
-        audioManager.playError();
-        alert(e.message);
     }
-}
+
+    updateBreedingUI() {
+        const p1Name = this.breedingParents.p1 ? this.breedingParents.p1.getDisplayName() : 'Select Female';
+        const p2Name = this.breedingParents.p2 ? this.breedingParents.p2.getDisplayName() : 'Select Male';
+
+        document.querySelector('#parent1-slot .placeholder').textContent = p1Name;
+        document.querySelector('#parent2-slot .placeholder').textContent = p2Name;
+
+        const breedBtn = document.getElementById('breed-btn');
+        const canBreed = this.breedingParents.p1 && this.breedingParents.p2;
+        if (breedBtn) breedBtn.disabled = !canBreed;
+
+        if (canBreed) {
+            this.updateBreedingPreview();
+        } else {
+            document.getElementById('offspring-preview').classList.add('hidden');
+        }
+    }
+
+    updateBreedingPreview() {
+        const preview = document.getElementById('offspring-preview');
+        preview.classList.remove('hidden');
+
+        const predictions = this.genetics.predictOffspring(this.breedingParents.p1, this.breedingParents.p2);
+        const container = document.getElementById('punnett-results');
+
+        if (predictions.length === 0) {
+            container.textContent = "Offspring will likely be Normal (Wild Type)";
+            return;
+        }
+
+        container.innerHTML = predictions.map(p => {
+            const outcomes = Object.entries(p.outcomes).map(([genotype, prob]) => {
+                return `<div>${genotype}: ${prob * 100}%</div>`;
+            }).join('');
+            return `<div class="prediction-group"><strong>${p.gene}</strong>${outcomes}</div>`;
+        }).join('');
+    }
+
+    breedSnakes() {
+        try {
+            const offspring = this.genetics.breed(this.breedingParents.p1, this.breedingParents.p2);
+
+            // Add first offspring to collection
+            if (offspring.length > 0) {
+                const baby = offspring[0];
+                this.state.collection.push(baby);
+
+                // Track discovered morphs
+                baby.getVisualGenes().forEach(gene => {
+                    this.state.discoveredMorphs.add(gene);
+                });
+
+                audioManager.playSnakeCapture(); // Victory sound
+                alert(`Breeding Successful! You got a ${baby.getDisplayName()}! (Clutch size: ${offspring.length})`);
+                this.updateUI();
+                this.closeAllPanels();
+
+                // Reset breeding
+                this.breedingParents = { p1: null, p2: null };
+                this.updateBreedingUI();
+            }
+        } catch (e) {
+            audioManager.playError();
+            alert(e.message);
+        }
+    }
 
 
-/**
- * Populate the home panel with terrariums and breeding info
- */
-populateHome() {
-    const terrariumGrid = document.getElementById('home-terrariums');
-    terrariumGrid.innerHTML = '';
+    /**
+     * Populate the home panel with terrariums and breeding info
+     */
+    populateHome() {
+        const terrariumGrid = document.getElementById('home-terrariums');
+        terrariumGrid.innerHTML = '';
 
-    // Show up to maxTerrariums
-    for (let i = 0; i < this.state.maxTerrariums; i++) {
-        const snake = this.state.collection[i];
-        const card = document.createElement('div');
-        card.className = `terrarium-card${snake ? '' : ' empty'}`;
+        // Show up to maxTerrariums
+        for (let i = 0; i < this.state.maxTerrariums; i++) {
+            const snake = this.state.collection[i];
+            const card = document.createElement('div');
+            card.className = `terrarium-card${snake ? '' : ' empty'}`;
 
-        if (snake) {
-            const morphs = snake.getVisualGenes ? snake.getVisualGenes() : [];
-            card.innerHTML = `
+            if (snake) {
+                const morphs = snake.getVisualGenes ? snake.getVisualGenes() : [];
+                card.innerHTML = `
                     <div class="snake-icon">🐍</div>
                     <div class="snake-name">${snake.getDisplayName()}</div>
                     <div class="snake-morph">${morphs.length > 0 ? morphs.join(', ') : 'Normal'}</div>
                 `;
-        } else {
-            card.innerHTML = `
+            } else {
+                card.innerHTML = `
                     <div class="snake-icon">📦</div>
                     <div class="snake-name">Tomt terrarium</div>
                     <div class="snake-morph">Fånga en orm!</div>
                 `;
+            }
+
+            terrariumGrid.appendChild(card);
         }
 
-        terrariumGrid.appendChild(card);
-    }
-
-    // Buy Slot Card
-    if (this.state.maxTerrariums < 12) {
-        const cost = this.state.maxTerrariums * 500;
-        const buyCard = document.createElement('div');
-        buyCard.className = 'terrarium-card buy-slot';
-        buyCard.innerHTML = `
+        // Buy Slot Card
+        if (this.state.maxTerrariums < 12) {
+            const cost = this.state.maxTerrariums * 500;
+            const buyCard = document.createElement('div');
+            buyCard.className = 'terrarium-card buy-slot';
+            buyCard.innerHTML = `
                 <div class="snake-icon">➕</div>
                 <div class="snake-name">Buy Slot</div>
                 <div class="snake-morph">$${cost}</div>
             `;
-        buyCard.addEventListener('click', () => this.buyTerrarium());
-        terrariumGrid.appendChild(buyCard);
+            buyCard.addEventListener('click', () => this.buyTerrarium());
+            terrariumGrid.appendChild(buyCard);
+        }
+
+
+        // Update world terrariums when home panel is opened
+        if (this.world) {
+            this.world.updateHomeTerrariums(this.state.collection);
+        }
     }
 
+    /**
+     * Teleport player to home
+     */
+    goHome() {
+        if (this.world) {
+            audioManager.playTeleport();
+            this.world.goHome();
+            this.closeAllPanels();
 
-    // Update world terrariums when home panel is opened
-    if (this.world) {
-        this.world.updateHomeTerrariums(this.state.collection);
-    }
-}
-
-/**
- * Teleport player to home
- */
-goHome() {
-    if (this.world) {
-        audioManager.playTeleport();
-        this.world.goHome();
-        this.closeAllPanels();
-
-        // Reset nav button states
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.querySelector('[data-panel="explore"]')?.classList.add('active');
-    }
-}
-
-buyTerrarium() {
-    const cost = this.state.maxTerrariums * 500;
-    if (this.state.money >= cost) {
-        this.state.money -= cost;
-        this.state.maxTerrariums++;
-        audioManager.playCoinCollect();
-        this.updateUI();
-        this.populateHome();
-    } else {
-        audioManager.playError();
-        alert("Not enough money!");
-    }
-}
-
-updateUI() {
-    this.moneyDisplay.textContent = this.state.money.toLocaleString();
-    this.discoveredCount.textContent = this.state.discoveredMorphs.size;
-
-    const biomeData = morphData.biomes?.[this.state.currentBiome];
-    this.currentBiomeDisplay.textContent = biomeData?.name || 'Prairie Grasslands';
-}
-
-updateLoadingProgress(percent) {
-    if (this.loadingProgress) {
-        this.loadingProgress.style.width = `${percent}%`;
-    }
-}
-
-getSerializableState() {
-    return {
-        ...this.state,
-        discoveredMorphs: Array.from(this.state.discoveredMorphs),
-        collection: this.state.collection.map(s => s.serialize())
-    };
-}
-
-onWindowResize() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    this.camera.aspect = width / height;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(width, height);
-}
-
-animate() {
-    requestAnimationFrame(this.animate);
-
-    // Update world
-    if (this.world) {
-        this.world.update();
+            // Reset nav button states
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-panel="explore"]')?.classList.add('active');
+        }
     }
 
-    // Render
-    this.renderer.render(this.scene, this.camera);
-}
+    buyTerrarium() {
+        const cost = this.state.maxTerrariums * 500;
+        if (this.state.money >= cost) {
+            this.state.money -= cost;
+            this.state.maxTerrariums++;
+            audioManager.playCoinCollect();
+            this.updateUI();
+            this.populateHome();
+        } else {
+            audioManager.playError();
+            alert("Not enough money!");
+        }
+    }
 
-start() {
-    this.animate();
-}
+    updateUI() {
+        this.moneyDisplay.textContent = this.state.money.toLocaleString();
+        this.discoveredCount.textContent = this.state.discoveredMorphs.size;
+
+        const biomeData = morphData.biomes?.[this.state.currentBiome];
+        this.currentBiomeDisplay.textContent = biomeData?.name || 'Prairie Grasslands';
+    }
+
+    updateLoadingProgress(percent) {
+        if (this.loadingProgress) {
+            this.loadingProgress.style.width = `${percent}%`;
+        }
+    }
+
+    getSerializableState() {
+        return {
+            ...this.state,
+            discoveredMorphs: Array.from(this.state.discoveredMorphs),
+            collection: this.state.collection.map(s => s.serialize())
+        };
+    }
+
+    onWindowResize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(width, height);
+    }
+
+    animate() {
+        requestAnimationFrame(this.animate);
+
+        // Update world
+        if (this.world) {
+            this.world.update();
+        }
+
+        // Render
+        this.renderer.render(this.scene, this.camera);
+    }
+
+    start() {
+        this.animate();
+    }
 }
