@@ -38,6 +38,13 @@ export class World {
         this.headBobAmount = 0.05;
         this.headBobSpeed = 10;
 
+        // Smoothed terrain height for smooth camera movement
+        this.smoothedTerrainHeight = 0;
+        this.terrainSmoothingFactor = 0.15; // Higher = faster adaptation
+
+        // Smoothed head bob to prevent abrupt stops
+        this.smoothedHeadBob = 0;
+
         // Movement - slow walking pace
         this.moveSpeed = 0.05;
         this.turnSpeed = 0.025;
@@ -328,6 +335,10 @@ export class World {
     setupControls() {
         window.addEventListener('keydown', (e) => {
             this.keys[e.code] = true;
+            // Prevent default browser scrolling for arrow keys
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+                e.preventDefault();
+            }
         });
 
         window.addEventListener('keyup', (e) => {
@@ -478,23 +489,28 @@ export class World {
         if (this.isWalking) {
             this.walkTime += 0.16;
         }
-        const headBob = this.isWalking
+        const targetHeadBob = this.isWalking
             ? Math.sin(this.walkTime * this.headBobSpeed) * this.headBobAmount
             : 0;
+        // Smooth the head bob to prevent abrupt jumps when stopping
+        this.smoothedHeadBob += (targetHeadBob - this.smoothedHeadBob) * 0.3;
 
         // Get terrain height at player position to stay on ground
         const terrainHeight = this.getTerrainHeight(this.playerPosition.x, this.playerPosition.z);
         this.playerPosition.y = terrainHeight; // Keep player on terrain
 
+        // Smoothly interpolate camera height to avoid vibration
+        this.smoothedTerrainHeight += (terrainHeight - this.smoothedTerrainHeight) * this.terrainSmoothingFactor;
+
         // Update camera position (first person)
         this.camera.position.x = this.playerPosition.x;
-        this.camera.position.y = terrainHeight + this.eyeHeight + headBob;
+        this.camera.position.y = this.smoothedTerrainHeight + this.eyeHeight + this.smoothedHeadBob;
         this.camera.position.z = this.playerPosition.z;
 
         // Camera look direction
         const lookTarget = new THREE.Vector3(
             this.playerPosition.x - Math.sin(this.playerAngle),
-            terrainHeight + this.eyeHeight + this.playerPitch * 2 + headBob,
+            this.smoothedTerrainHeight + this.eyeHeight + this.playerPitch * 2 + this.smoothedHeadBob,
             this.playerPosition.z - Math.cos(this.playerAngle)
         );
         this.camera.lookAt(lookTarget);
