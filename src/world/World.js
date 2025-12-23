@@ -66,7 +66,16 @@ export class World {
         // Snake proximity alert
         this.lastSnakeAlertTime = 0;
         this.snakeAlertCooldown = 3000; // 3 seconds between alerts
+
+        // Minimap system
+        this.minimapCanvas = document.getElementById('minimap-canvas');
+        this.minimapCtx = this.minimapCanvas?.getContext('2d');
+        this.visitedCells = new Set(); // Track visited areas as "x,z" cell keys
+        this.cellSize = 5; // World units per cell
+        this.minimapScale = 0.8; // Pixels per world unit
+        this.compassNeedle = document.querySelector('.compass-needle');
     }
+
 
     async init() {
         this.random.reset(); // Ensure deterministic generation

@@ -141,9 +141,43 @@ export class Snake {
     }
 
     /**
+     * Get an image URL for this snake's morph
+     * Returns the image of the first visual gene, or species default
+     */
+    getMorphImage() {
+        const phenotype = this.getPhenotype();
+        const genes = this.morphData.genes;
+
+        // Check combo morphs first
+        const combos = this.morphData.comboMorphs;
+        for (const [comboId, combo] of Object.entries(combos)) {
+            if (combo.requires.every(req => phenotype.includes(req))) {
+                if (combo.image) return combo.image;
+            }
+        }
+
+        // Use first visual gene's image
+        for (const geneId of phenotype) {
+            const gene = genes[geneId];
+            if (gene && gene.image) {
+                return gene.image;
+            }
+        }
+
+        // Fallback to species image
+        const species = this.morphData.species[this.species];
+        if (species && species.image) {
+            return species.image;
+        }
+
+        return null;
+    }
+
+    /**
      * Calculate the price of this snake
      */
     calculatePrice() {
+
         const species = this.morphData.species[this.species];
         const genes = this.morphData.genes;
         const rules = this.morphData.pricingRules;

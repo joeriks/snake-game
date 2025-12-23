@@ -527,9 +527,17 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 5rem;
+  overflow: hidden;
+}
+
+.modal .snake-preview .morph-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .modal .snake-info {
+
   padding: var(--spacing-lg);
 }
 
@@ -615,8 +623,64 @@ body {
   gap: var(--spacing-md);
 }
 
+/* === Minimap === */
+#minimap-container {
+  position: absolute;
+  top: 70px;
+  right: var(--spacing-md);
+  width: 150px;
+  height: 150px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  border: 3px solid var(--accent-gold);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 150;
+}
+
+#minimap-canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+#compass {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.compass-n {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--accent-gold);
+  font-weight: bold;
+  font-size: 0.75rem;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+}
+
+.compass-needle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 20px solid var(--accent-red);
+  transform: translate(-50%, -100%);
+  transform-origin: center bottom;
+}
+
 /* === Utilities === */
 .hidden {
+
   display: none !important;
 }
 

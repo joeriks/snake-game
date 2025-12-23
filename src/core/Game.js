@@ -272,6 +272,15 @@ export class Game {
         document.getElementById('encounter-species').textContent = snake.getSpeciesName();
         document.getElementById('encounter-value').textContent = `Est. Value: $${snake.calculatePrice()}`;
 
+        // Show morph image
+        const previewContainer = document.getElementById('encounter-snake-preview');
+        const morphImage = snake.getMorphImage();
+        if (morphImage) {
+            previewContainer.innerHTML = `<img src="${morphImage}" alt="${snake.getDisplayName()}" class="morph-photo" onerror="this.style.display='none'; this.parentElement.innerHTML='🐍';">`;
+        } else {
+            previewContainer.innerHTML = '🐍';
+        }
+
         // Populate genetics
         const geneticsContainer = document.getElementById('encounter-genetics');
         geneticsContainer.innerHTML = '';
