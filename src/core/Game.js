@@ -55,6 +55,13 @@ export class Game {
         if (savedState) {
             this.state = { ...this.state, ...savedState };
             this.state.discoveredMorphs = new Set(savedState.discoveredMorphs || []);
+
+            // Rehydrate snake instances
+            if (this.state.collection) {
+                this.state.collection = this.state.collection.map(data =>
+                    Snake.deserialize(data, morphData)
+                );
+            }
         }
 
         this.updateLoadingProgress(20);
@@ -418,6 +425,7 @@ export class Game {
         }
 
         this.state.collection.forEach((snake, index) => {
+            if (!snake) return;
             const card = document.createElement('div');
             card.className = 'snake-card';
             card.innerHTML = `
