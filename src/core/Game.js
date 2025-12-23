@@ -9,6 +9,7 @@ import { SaveManager } from './SaveManager.js';
 import { Snake } from './Snake.js';
 import { Genetics } from './Genetics.js';
 import { audioManager } from './AudioManager.js';
+import { toastManager } from './ToastManager.js';
 import morphData from '../../data/morphs.json';
 
 export class Game {
@@ -81,7 +82,7 @@ export class Game {
             this.state.money += value;
             this.updateUI();
             audioManager.playCoinCollect();
-            console.log(`💰 Collected coin worth $${value}!`);
+            toastManager.showCoinCollected(value);
         };
 
         this.updateLoadingProgress(70);
@@ -199,8 +200,12 @@ export class Game {
         });
 
         // Encounter modal buttons
-        document.getElementById('capture-btn')?.addEventListener('click', () => this.captureSnake());
-        document.getElementById('release-btn')?.addEventListener('click', () => {
+        document.getElementById('capture-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent click from bubbling to canvas and triggering pointer lock
+            this.captureSnake();
+        });
+        document.getElementById('release-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent click from bubbling to canvas
             audioManager.playUIClick();
             this.releaseSnake();
         });
@@ -259,6 +264,8 @@ export class Game {
                 this.populateHome();
             } else if (panelName === 'breed') {
                 this.populateBreeding();
+            } else if (panelName === 'collection') {
+                this.populateCollection();
             }
         }
     }
@@ -362,7 +369,7 @@ export class Game {
             this.saveManager.save(this.getSerializableState());
             this.closeEncounterModal();
 
-            console.log('🐍 Captured:', this.currentEncounter.getDisplayName());
+            toastManager.success('Snake Captured!', `${this.currentEncounter.getDisplayName()} - Added to your Collection!`, '🐍');
         }
     }
 
@@ -412,7 +419,13 @@ export class Game {
     }
 
     populateMarket() {
-        // Default to sell tab
+        // Reset tab buttons to match default Sell tab
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === 'sell');
+        });
+
+        // Default to sell tab content
         this.populateMarketSell();
     }
 
@@ -452,32 +465,48 @@ export class Game {
         const listings = document.getElementById('market-listings');
         listings.innerHTML = '';
 
-        // Generate some random listings if not already cached (could be added to state later)
-        // For now, generate on fly for demo
-        const speciesAvailable = ['western', 'eastern'];
+        // Generate buy listings if not cached, or refresh if empty
+        if (!this.marketBuyListings || this.marketBuyListings.length === 0) {
+            this.generateMarketBuyListings();
+        }
 
-        for (let i = 0; i < 3; i++) {
-            // Mock data generation using seeded random logic ideally, but here simplified
-            const species = speciesAvailable[Math.floor(Math.random() * speciesAvailable.length)];
-            const price = 150 + Math.floor(Math.random() * 300);
+        if (this.marketBuyListings.length === 0) {
+            listings.innerHTML = '<p style="color: var(--text-muted); text-align: center; grid-column: 1/-1;">No snakes available. Check back later!</p>';
+            return;
+        }
 
+        this.marketBuyListings.forEach((listing, index) => {
             const card = document.createElement('div');
             card.className = 'snake-card market-item';
             card.innerHTML = `
                 <div class="preview">🐍</div>
                 <div class="info">
-                    <div class="name">Mystery ${species}</div>
+                    <div class="name">Mystery ${listing.species}</div>
                     <div class="species">Captive Bred</div>
-                    <div class="price">Buy $${price}</div>
+                    <div class="price">Buy $${listing.price}</div>
                 </div>
                 <button class="action-btn small primary">Buy</button>
             `;
 
             card.querySelector('button').addEventListener('click', () => {
-                this.buySnake({ species, price });
+                this.buySnake(listing, index);
             });
 
             listings.appendChild(card);
+        });
+    }
+
+    /**
+     * Generate cached market buy listings
+     */
+    generateMarketBuyListings() {
+        const speciesAvailable = ['western', 'eastern'];
+        this.marketBuyListings = [];
+
+        for (let i = 0; i < 3; i++) {
+            const species = speciesAvailable[Math.floor(Math.random() * speciesAvailable.length)];
+            const price = 150 + Math.floor(Math.random() * 300);
+            this.marketBuyListings.push({ species, price });
         }
     }
 
@@ -492,25 +521,37 @@ export class Game {
         audioManager.playCoinCollect();
         this.updateUI();
         this.populateMarketSell(); // Refresh list
-        this.populateHome(); // Refresh home incase it was shown
+        this.populateHome(); // Refresh home in case it was shown
+        this.saveManager.save(this.getSerializableState());
+
+        toastManager.success('Snake Sold!', `${snake.getDisplayName()} for $${price}`, '💰');
     }
 
-    buySnake(listing) {
+    buySnake(listing, listingIndex) {
         if (this.state.money >= listing.price) {
             this.state.money -= listing.price;
 
-            // Generate a captive bred snake (clean genetics usually, or random simple morphs)
-            const snake = this.genetics.generateWildSnake('prairie'); // Reuse generation for now
+            // Generate a captive bred snake with the correct species from the listing
+            const snake = this.genetics.generateWildSnake(listing.species === 'eastern' ? 'rocky' : 'prairie');
+            snake.species = listing.species; // Ensure species matches listing
             snake.origin = 'purchased';
 
             this.state.collection.push(snake);
 
+            // Remove this listing from available snakes
+            if (typeof listingIndex === 'number' && this.marketBuyListings) {
+                this.marketBuyListings.splice(listingIndex, 1);
+            }
+
             audioManager.playCoinCollect();
             this.updateUI();
-            alert(`You bought a ${snake.getDisplayName()}!`);
+            this.populateMarketBuy(); // Refresh the buy list
+            this.saveManager.save(this.getSerializableState());
+
+            toastManager.success('Snake Purchased!', `${snake.getDisplayName()} for $${listing.price}`, '🐍');
         } else {
             audioManager.playError();
-            alert("Not enough money!");
+            toastManager.error('Not Enough Money!', `You need $${listing.price}`, '💸');
         }
     }
 

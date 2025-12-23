@@ -10,10 +10,14 @@
 - [x] det ska ta lite längre tid mellan att man går tills att man börjar springa
 - [x] ljudet ska ändras när man springer
 
-- [ ] det uppstår något fel när man klickar i dialogrutan för att fånga en orm, jag tror det är för att spelet då går in i navigera-med-musen-läge
+- [x] det uppstår något fel när man klickar i dialogrutan för att fånga en orm, jag tror det är för att spelet då går in i navigera-med-musen-läge
 
 - [x] gör så att man kan köpa terrarier
 
 - [x] gör så att man kan köpa och sälja ormar
 
 - [x] gör så att breeding fungerar
+
+- [x] lägg till toasts när man köper och fångar eller andra viktiga händelser
+
+- [x] funktionen för att fånga en orm är inte intuitiv, vart tar den vägen när man fångar den?

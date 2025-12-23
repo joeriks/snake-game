@@ -821,3 +821,153 @@ body {
   text-align: center;
   padding: var(--spacing-lg);
 }
+
+/* === Toast Notifications === */
+#toast-container {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  pointer-events: none;
+  max-width: 90%;
+}
+
+.toast {
+  background: var(--bg-medium);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  animation: toastSlideIn 0.3s ease forwards;
+  pointer-events: auto;
+}
+
+.toast.toast-exit {
+  animation: toastSlideOut 0.3s ease forwards;
+}
+
+.toast-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.toast-message {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Toast Types */
+.toast.toast-success {
+  border-color: var(--accent-green);
+  background: linear-gradient(135deg, rgba(78, 204, 163, 0.15), var(--bg-medium));
+}
+
+.toast.toast-success .toast-title {
+  color: var(--accent-green);
+}
+
+.toast.toast-warning {
+  border-color: var(--accent-gold);
+  background: linear-gradient(135deg, rgba(230, 161, 23, 0.15), var(--bg-medium));
+}
+
+.toast.toast-warning .toast-title {
+  color: var(--accent-gold);
+}
+
+.toast.toast-error {
+  border-color: var(--accent-red);
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), var(--bg-medium));
+}
+
+.toast.toast-error .toast-title {
+  color: var(--accent-red);
+}
+
+.toast.toast-info {
+  border-color: var(--accent-blue);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), var(--bg-medium));
+}
+
+.toast.toast-info .toast-title {
+  color: var(--accent-blue);
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+/* === Coin Collection Indicator === */
+#coin-indicator-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1500;
+  overflow: hidden;
+}
+
+.coin-indicator {
+  position: absolute;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--accent-gold);
+  text-shadow:
+    0 0 10px rgba(230, 161, 23, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+  animation: coinRise 1s ease-out forwards;
+  white-space: nowrap;
+}
+
+@keyframes coinRise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-80px) scale(1.2);
+    opacity: 0;
+  }
+}
