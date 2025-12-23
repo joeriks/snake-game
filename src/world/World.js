@@ -19,9 +19,15 @@ export class World {
 
         // Snake spots with actual snake data
         this.snakeSpots = [];
-        this.nearbySnake = null; // Currently detected snake
-        this.detectionRadius = 10; // Rustling visible from 10 meters
-        this.interactionRadius = 3; // Can interact within 3 meters
+        this.nearbySnake = null;
+        this.detectionRadius = 10;
+        this.interactionRadius = 3;
+
+        // Coin collection system
+        this.coins = [];
+        this.onCoinCollected = null; // Callback when coin is collected
+        this.coinRespawnTime = 60000; // 60 seconds to respawn
+        this.coinCollectionRadius = 2;
 
         // Seeded random for deterministic world
         this.random = new SeededRandom(WORLD_SEED);
@@ -58,6 +64,7 @@ export class World {
         this.createHome();
         this.createDecorations();
         this.createSnakeSpots();
+        this.createCoins();
     }
 
     /**
@@ -218,63 +225,179 @@ export class World {
      * Snakes are hidden until player gets close
      */
     createSnakeSpots() {
-        const NUM_SNAKES = 25; // Total snakes in the world
+        // === STARTER SNAKES near home (easy to find) ===
+        const starterPositions = [
+            { x: 15, z: 10 },   // Right-front of home
+            { x: -12, z: 15 },  // Left-front of home
+            { x: 5, z: 20 },    // Straight ahead from home
+        ];
 
-        for (let i = 0; i < NUM_SNAKES; i++) {
+        starterPositions.forEach((pos, i) => {
+            this.addSnakeSpot(pos.x, pos.z, `starter_${i}`, true);
+        });
+
+        // === WILD SNAKES spread across the world ===
+        const NUM_WILD_SNAKES = 22; // Remaining snakes
+
+        for (let i = 0; i < NUM_WILD_SNAKES; i++) {
             // Seeded random position
             const x = this.random.float(-85, 85);
             const z = this.random.float(-85, 85);
 
-            // Skip if too close to spawn point
-            if (Math.abs(x) < 10 && Math.abs(z) < 10) continue;
+            // Skip if too close to home area (avoid overlap with starters)
+            if (Math.abs(x) < 20 && Math.abs(z) < 25) continue;
 
-            // Create hidden spot marker (only visible when very close)
-            const spotGeometry = new THREE.RingGeometry(0.3, 0.5, 16);
-            const spotMaterial = new THREE.MeshStandardMaterial({
-                color: 0xffcc00,
-                emissive: 0xffcc00,
-                emissiveIntensity: 0.5,
-                transparent: true,
-                opacity: 0, // Hidden by default
-                side: THREE.DoubleSide
-            });
-            const spot = new THREE.Mesh(spotGeometry, spotMaterial);
-            spot.rotation.x = -Math.PI / 2;
-            spot.position.set(x, 0.05, z);
-
-            // Visual rustling grass indicator
-            const rustleGeometry = new THREE.ConeGeometry(0.15, 0.4, 4);
-            const rustleMaterial = new THREE.MeshStandardMaterial({
-                color: 0x558b2f,
-                transparent: true,
-                opacity: 0 // Hidden by default
-            });
-            const rustle = new THREE.Mesh(rustleGeometry, rustleMaterial);
-            rustle.position.set(x, 0.2, z);
-
-            // Store snake data with seeded morph generation
-            const snakeData = {
-                id: `snake_${i}`,
-                position: new THREE.Vector3(x, 0, z),
-                discovered: false,
-                collected: false,
-                spot: spot,
-                rustle: rustle,
-                // Seed-based snake properties (for genetics generation later)
-                seed: this.random.int(0, 1000000),
-                rarity: this.random.float(0, 1), // Determines morph rarity
-                species: this.random.pick(['western', 'western', 'western', 'eastern']) // 75% western
-            };
-
-            this.scene.add(spot);
-            this.scene.add(rustle);
-            this.snakeSpots.push(snakeData);
+            this.addSnakeSpot(x, z, `wild_${i}`, false);
         }
     }
 
     /**
-     * Check for nearby snakes and update visual indicators
+     * Add a snake spot at given position
      */
+    addSnakeSpot(x, z, id, isStarter = false) {
+        // Create spot marker (pulsing ring when close)
+        const spotGeometry = new THREE.RingGeometry(0.3, 0.5, 16);
+        const spotMaterial = new THREE.MeshStandardMaterial({
+            color: isStarter ? 0x00ff00 : 0xffcc00, // Green for starters, gold for wild
+            emissive: isStarter ? 0x00ff00 : 0xffcc00,
+            emissiveIntensity: 0.5,
+            transparent: true,
+            opacity: 0,
+            side: THREE.DoubleSide
+        });
+        const spot = new THREE.Mesh(spotGeometry, spotMaterial);
+        spot.rotation.x = -Math.PI / 2;
+        spot.position.set(x, 0.05, z);
+
+        // Visual rustling grass indicator
+        const rustleGeometry = new THREE.ConeGeometry(0.2, 0.5, 4);
+        const rustleMaterial = new THREE.MeshStandardMaterial({
+            color: 0x558b2f,
+            transparent: true,
+            opacity: isStarter ? 0.4 : 0 // Starters always slightly visible
+        });
+        const rustle = new THREE.Mesh(rustleGeometry, rustleMaterial);
+        rustle.position.set(x, 0.25, z);
+
+        // Snake data
+        const snakeData = {
+            id: id,
+            position: new THREE.Vector3(x, 0, z),
+            discovered: false,
+            collected: false,
+            isStarter: isStarter,
+            spot: spot,
+            rustle: rustle,
+            seed: this.random.int(0, 1000000),
+            rarity: isStarter ? this.random.float(0, 0.5) : this.random.float(0, 1), // Starters are common
+            species: this.random.pick(['western', 'western', 'western', 'eastern'])
+        };
+
+        this.scene.add(spot);
+        this.scene.add(rustle);
+        this.snakeSpots.push(snakeData);
+    }
+
+    /**
+     * Create collectible coins around the world
+     */
+    createCoins() {
+        const NUM_COINS = 40;
+
+        // Some coins near home for easy money
+        const nearbyPositions = [
+            { x: 8, z: 8 },
+            { x: -8, z: 12 },
+            { x: 12, z: 5 },
+            { x: -5, z: 8 },
+            { x: 3, z: 15 },
+        ];
+
+        nearbyPositions.forEach((pos, i) => {
+            this.addCoin(pos.x, pos.z, `coin_near_${i}`, 10);
+        });
+
+        // Rest spread around the world
+        for (let i = 0; i < NUM_COINS - nearbyPositions.length; i++) {
+            const angle = this.random.float(0, Math.PI * 2);
+            const distance = this.random.float(20, 90);
+            const x = Math.cos(angle) * distance;
+            const z = Math.sin(angle) * distance;
+
+            // Value based on distance (further = more valuable)
+            const value = Math.floor(5 + distance * 0.3);
+            this.addCoin(x, z, `coin_${i}`, value);
+        }
+    }
+
+    /**
+     * Add a single coin at position
+     */
+    addCoin(x, z, id, value = 10) {
+        // Coin mesh (golden cylinder)
+        const coinGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.08, 16);
+        const coinMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffd700,
+            emissive: 0xffa500,
+            emissiveIntensity: 0.3,
+            metalness: 0.8,
+            roughness: 0.2
+        });
+        const coinMesh = new THREE.Mesh(coinGeometry, coinMaterial);
+        coinMesh.rotation.x = Math.PI / 2;
+        coinMesh.position.set(x, 0.5, z);
+        coinMesh.castShadow = true;
+
+        const coinData = {
+            id: id,
+            mesh: coinMesh,
+            position: new THREE.Vector3(x, 0, z),
+            value: value,
+            collected: false,
+            respawnAt: null
+        };
+
+        this.scene.add(coinMesh);
+        this.coins.push(coinData);
+    }
+
+    /**
+     * Check for nearby coins and collect them
+     */
+    checkNearbyCoins() {
+        const now = Date.now();
+
+        for (const coin of this.coins) {
+            // Handle respawn
+            if (coin.collected && coin.respawnAt && now >= coin.respawnAt) {
+                coin.collected = false;
+                coin.respawnAt = null;
+                coin.mesh.visible = true;
+            }
+
+            if (coin.collected) continue;
+
+            const dist = this.playerPosition.distanceTo(coin.position);
+
+            // Auto-collect when close
+            if (dist < this.coinCollectionRadius) {
+                coin.collected = true;
+                coin.respawnAt = now + this.coinRespawnTime;
+                coin.mesh.visible = false;
+
+                // Trigger callback
+                if (this.onCoinCollected) {
+                    this.onCoinCollected(coin.value);
+                }
+            } else {
+                // Animate coin rotation and hover
+                const time = now * 0.002;
+                coin.mesh.rotation.z = time;
+                coin.mesh.position.y = 0.5 + Math.sin(time * 2 + coin.position.x) * 0.1;
+            }
+        }
+    }
+
     checkNearbySnakes() {
         let closest = null;
         let closestDist = Infinity;
@@ -517,6 +640,9 @@ export class World {
 
         // Check for nearby snakes and update indicators
         this.checkNearbySnakes();
+
+        // Check for nearby coins and collect them
+        this.checkNearbyCoins();
     }
 
     /**

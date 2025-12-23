@@ -66,6 +66,14 @@ export class Game {
             this.handleSnakeDiscovery(snakeData);
         });
         await this.world.init();
+
+        // Set up coin collection callback
+        this.world.onCoinCollected = (value) => {
+            this.state.money += value;
+            this.updateUI();
+            console.log(`💰 Collected coin worth $${value}!`);
+        };
+
         this.updateLoadingProgress(70);
 
         // Setup UI
