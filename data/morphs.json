@@ -1,0 +1,658 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-12-23",
+    "sources": [
+      "MorphMarket",
+      "Ectotherm Empire",
+      "GM Reptiles",
+      "Reptifit.nl",
+      "Hognose-morphs.com"
+    ]
+  },
+  "species": {
+    "western": {
+      "id": "western",
+      "scientificName": "Heterodon nasicus",
+      "commonName": "Western Hognose",
+      "description": "Most popular species for morph breeding with extensive genetic variety",
+      "basePrice": 100,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Western_Hognose_Snake.jpg/1200px-Western_Hognose_Snake.jpg"
+    },
+    "eastern": {
+      "id": "eastern",
+      "scientificName": "Heterodon platirhinos",
+      "commonName": "Eastern Hognose",
+      "description": "Known for extreme natural color variation including melanistic phase",
+      "basePrice": 150,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Heterodon_platirhinos.jpg/1200px-Heterodon_platirhinos.jpg"
+    },
+    "southern": {
+      "id": "southern",
+      "scientificName": "Heterodon simus",
+      "commonName": "Southern Hognose",
+      "description": "Rarest species, conservation concern, limited captive morphs",
+      "basePrice": 500,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Southern_Hognose_Snake.jpg/1200px-Southern_Hognose_Snake.jpg"
+    }
+  },
+  "genes": {
+    "albino": {
+      "id": "albino",
+      "name": "Albino",
+      "aliases": ["Amelanistic", "T- Albino"],
+      "inheritance": "recessive",
+      "description": "Lacks melanin production, resulting in red, orange, or yellow coloration with red eyes",
+      "visualTraits": {
+        "melanin": 0,
+        "eyeColor": "red",
+        "bodyColors": ["orange", "yellow", "red", "cream"]
+      },
+      "species": ["western", "eastern"],
+      "rarity": 1,
+      "basePrice": 200,
+      "priceRange": { "min": 175, "max": 350 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/9b/31/9b31a3f9a2b4e5c1d8f2e3a4b5c6d7e8.jpg",
+      "imageAlt": "https://images.unsplash.com/photo-1531386151447-fd76ad50012f?w=800"
+    },
+    "axanthic": {
+      "id": "axanthic",
+      "name": "Axanthic",
+      "aliases": [],
+      "inheritance": "recessive",
+      "description": "Lacks xanthophores (yellow/red pigment cells), resulting in grayscale coloration",
+      "visualTraits": {
+        "xanthophores": 0,
+        "bodyColors": ["gray", "black", "white", "silver"]
+      },
+      "species": ["western", "eastern"],
+      "rarity": 2,
+      "basePrice": 350,
+      "priceRange": { "min": 300, "max": 500 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/axanthic_hognose.jpg"
+    },
+    "lavender": {
+      "id": "lavender",
+      "name": "Lavender",
+      "aliases": [],
+      "inheritance": "recessive",
+      "description": "Purple/pink hue with dark eyes, hatchlings start reddish and fade to lavender",
+      "visualTraits": {
+        "hue": "lavender",
+        "eyeColor": "dark",
+        "bodyColors": ["lavender", "purple", "pink", "silver"]
+      },
+      "species": ["western"],
+      "rarity": 3,
+      "basePrice": 500,
+      "priceRange": { "min": 400, "max": 800 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/lavender_hognose.jpg"
+    },
+    "caramel": {
+      "id": "caramel",
+      "name": "Caramel",
+      "aliases": ["T+ Albino"],
+      "inheritance": "recessive",
+      "description": "T+ albino form with brilliant white belly and warm caramel body coloring",
+      "visualTraits": {
+        "hue": "caramel",
+        "bellyColor": "white",
+        "bodyColors": ["caramel", "tan", "cream", "brown"]
+      },
+      "species": ["western"],
+      "rarity": 2,
+      "basePrice": 300,
+      "priceRange": { "min": 250, "max": 450 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/caramel_hognose.jpg"
+    },
+    "sable": {
+      "id": "sable",
+      "name": "Sable",
+      "aliases": [],
+      "inheritance": "recessive",
+      "description": "Increases melanin concentration, creating rich dark brown coloration",
+      "visualTraits": {
+        "melanin": 2,
+        "brightness": -0.3,
+        "bodyColors": ["dark brown", "chocolate", "black"]
+      },
+      "species": ["western"],
+      "rarity": 3,
+      "basePrice": 450,
+      "priceRange": { "min": 350, "max": 700 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/sable_hognose.jpg"
+    },
+    "hypo": {
+      "id": "hypo",
+      "name": "Hypo",
+      "aliases": ["Hypomelanistic", "Dutch Hypo", "Evans Hypo", "True Hypo"],
+      "inheritance": "recessive",
+      "description": "Reduced dark pigmentation, resulting in brighter, cleaner colors",
+      "visualTraits": {
+        "melanin": 0.5,
+        "bellyColor": "gray",
+        "bodyColors": ["tan", "peach", "cream", "light brown"]
+      },
+      "species": ["western", "eastern"],
+      "rarity": 1,
+      "basePrice": 225,
+      "priceRange": { "min": 175, "max": 350 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/hypo_hognose.jpg"
+    },
+    "toffeebelly": {
+      "id": "toffeebelly",
+      "name": "Toffeebelly",
+      "aliases": ["Toffee Belly", "Toffee Glow"],
+      "inheritance": "recessive",
+      "description": "T+ Albino type with warm caramel body and distinct toffee-colored belly, develops paradoxing with age",
+      "visualTraits": {
+        "bellyColor": "toffee",
+        "hue": "caramel",
+        "bodyColors": ["caramel", "gold", "toffee"]
+      },
+      "species": ["western"],
+      "rarity": 3,
+      "basePrice": 500,
+      "priceRange": { "min": 400, "max": 800 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/toffeebelly_hognose.jpg"
+    },
+    "pinkPastel": {
+      "id": "pinkPastel",
+      "name": "Pink Pastel",
+      "aliases": ["Pink Pastel Albino", "PPA"],
+      "inheritance": "recessive",
+      "description": "T- albino form that starts reddish as hatchlings and develops pink coloration",
+      "visualTraits": {
+        "melanin": 0,
+        "hue": "pink",
+        "bodyColors": ["pink", "salmon", "peach"]
+      },
+      "species": ["western"],
+      "rarity": 3,
+      "basePrice": 600,
+      "priceRange": { "min": 450, "max": 900 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/pink_pastel_hognose.jpg"
+    },
+    "pistachio": {
+      "id": "pistachio",
+      "name": "Pistachio",
+      "aliases": ["Green Hypo"],
+      "inheritance": "recessive",
+      "description": "Green and pink hues on dorsal, lacks melanin, purplish-smoky belly instead of black",
+      "visualTraits": {
+        "melanin": 0,
+        "bodyColors": ["green", "pink", "mint"],
+        "bellyColor": "smoky purple"
+      },
+      "species": ["western"],
+      "rarity": 4,
+      "basePrice": 800,
+      "priceRange": { "min": 600, "max": 1200 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/pistachio_hognose.jpg"
+    },
+    "swissChocolate": {
+      "id": "swissChocolate",
+      "name": "Swiss Chocolate",
+      "aliases": [],
+      "inheritance": "recessive",
+      "description": "Ultra-rare morph with rich chocolate brown coloration, very limited availability",
+      "visualTraits": {
+        "hue": "chocolate",
+        "bodyColors": ["chocolate", "dark brown", "mocha"]
+      },
+      "species": ["western"],
+      "rarity": 5,
+      "basePrice": 6000,
+      "priceRange": { "min": 4000, "max": 9000 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/swiss_chocolate_hognose.jpg"
+    },
+    "anaconda": {
+      "id": "anaconda",
+      "name": "Anaconda",
+      "aliases": ["Conda"],
+      "inheritance": "incompleteDominant",
+      "description": "Reduces and enlarges pattern blotches, solid black belly with white borders",
+      "visualTraits": {
+        "pattern": 0.5,
+        "bellyColor": "black",
+        "patternType": "reduced"
+      },
+      "superForm": "superconda",
+      "species": ["western", "eastern"],
+      "rarity": 2,
+      "basePrice": 275,
+      "priceRange": { "min": 225, "max": 400 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/anaconda_hognose.jpg"
+    },
+    "superconda": {
+      "id": "superconda",
+      "name": "Superconda",
+      "aliases": ["Super Anaconda"],
+      "inheritance": "incompleteDominant",
+      "isSuper": true,
+      "baseGene": "anaconda",
+      "description": "Homozygous anaconda - completely patternless body, pattern only on head",
+      "visualTraits": {
+        "pattern": 0,
+        "bellyColor": "black",
+        "patternType": "patternless"
+      },
+      "species": ["western", "eastern"],
+      "rarity": 3,
+      "basePrice": 450,
+      "priceRange": { "min": 350, "max": 700 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/superconda_hognose.jpg"
+    },
+    "arctic": {
+      "id": "arctic",
+      "name": "Arctic",
+      "aliases": ["JMG Axanthic"],
+      "inheritance": "incompleteDominant",
+      "description": "High contrast with dark black outlines and white edging, silvery background",
+      "visualTraits": {
+        "contrast": 1.5,
+        "outline": "dark",
+        "bodyColors": ["silver", "white", "gray"]
+      },
+      "superForm": "superarctic",
+      "species": ["western", "eastern"],
+      "rarity": 3,
+      "basePrice": 400,
+      "priceRange": { "min": 300, "max": 600 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/arctic_hognose.jpg"
+    },
+    "superarctic": {
+      "id": "superarctic",
+      "name": "Superarctic",
+      "aliases": ["Super Arctic"],
+      "inheritance": "incompleteDominant",
+      "isSuper": true,
+      "baseGene": "arctic",
+      "description": "Homozygous arctic - stark black and white coloration, hatchlings nearly black, lighten with age",
+      "visualTraits": {
+        "contrast": 2,
+        "saturation": 0,
+        "bodyColors": ["black", "white"]
+      },
+      "species": ["western", "eastern"],
+      "rarity": 4,
+      "basePrice": 800,
+      "priceRange": { "min": 600, "max": 1200 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/superarctic_hognose.jpg"
+    },
+    "mocha": {
+      "id": "mocha",
+      "name": "Mocha",
+      "aliases": [],
+      "inheritance": "incompleteDominant",
+      "description": "Large square or tiger-banded pattern blotches on lighter creamy background",
+      "visualTraits": {
+        "patternType": "blocky",
+        "bodyColors": ["cream", "tan", "brown"]
+      },
+      "species": ["western"],
+      "rarity": 3,
+      "basePrice": 400,
+      "priceRange": { "min": 300, "max": 600 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/mocha_hognose.jpg"
+    },
+    "lemonGhost": {
+      "id": "lemonGhost",
+      "name": "Lemon Ghost",
+      "aliases": ["Lemon Hypo"],
+      "inheritance": "dominant",
+      "description": "Increases yellow pigmentation, becomes more pronounced with age",
+      "visualTraits": {
+        "yellow": 1.5,
+        "bodyColors": ["yellow", "lemon", "gold"]
+      },
+      "species": ["western"],
+      "rarity": 2,
+      "basePrice": 350,
+      "priceRange": { "min": 275, "max": 500 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/lemon_ghost_hognose.jpg"
+    },
+    "cinnamon": {
+      "id": "cinnamon",
+      "name": "Cinnamon",
+      "aliases": [],
+      "inheritance": "dominant",
+      "description": "Distinctive head pattern with brown coloration, juveniles dark and lighten with sheds",
+      "visualTraits": {
+        "hue": "cinnamon",
+        "headPattern": "unique",
+        "bodyColors": ["cinnamon", "brown", "tan"]
+      },
+      "species": ["western"],
+      "rarity": 2,
+      "basePrice": 350,
+      "priceRange": { "min": 275, "max": 500 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/cinnamon_hognose.jpg"
+    },
+    "leucistic": {
+      "id": "leucistic",
+      "name": "Leucistic",
+      "aliases": ["Lucy"],
+      "inheritance": "recessive",
+      "description": "Nearly entirely white with marble blue eyes, white or soft yellow belly",
+      "visualTraits": {
+        "melanin": 0,
+        "eyeColor": "blue",
+        "bodyColors": ["white", "cream"]
+      },
+      "species": ["western"],
+      "rarity": 5,
+      "basePrice": 3000,
+      "priceRange": { "min": 1000, "max": 5000 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/leucistic_hognose.jpg"
+    },
+    "shadow": {
+      "id": "shadow",
+      "name": "Shadow",
+      "aliases": [],
+      "inheritance": "polygenic",
+      "description": "Large blocky saddles with high melanin concentration, distinctive blush line creating shadow effect",
+      "visualTraits": {
+        "melanin": 1.5,
+        "patternType": "blocky",
+        "bodyColors": ["dark gray", "black", "tan"]
+      },
+      "species": ["western"],
+      "rarity": 5,
+      "basePrice": 2000,
+      "priceRange": { "min": 1500, "max": 4000 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/shadow_hognose.jpg"
+    },
+    "frosted": {
+      "id": "frosted",
+      "name": "Frosted",
+      "aliases": [],
+      "inheritance": "polygenic",
+      "description": "Frosted appearance with lighter coloration throughout",
+      "visualTraits": {
+        "brightness": 0.3,
+        "bodyColors": ["silver", "white", "frost"]
+      },
+      "species": ["western"],
+      "rarity": 3,
+      "basePrice": 400,
+      "priceRange": { "min": 300, "max": 600 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/frosted_hognose.jpg"
+    },
+    "extremeRed": {
+      "id": "extremeRed",
+      "name": "Extreme Red",
+      "aliases": ["Inferno", "Diablo", "Raging Red"],
+      "inheritance": "polygenic",
+      "description": "Line-bred for intense red coloration, must be combined with albino",
+      "visualTraits": {
+        "red": 2,
+        "bodyColors": ["red", "orange", "crimson"]
+      },
+      "species": ["western"],
+      "rarity": 2,
+      "basePrice": 350,
+      "priceRange": { "min": 275, "max": 550 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/extreme_red_hognose.jpg"
+    },
+    "green": {
+      "id": "green",
+      "name": "Green",
+      "aliases": ["Green Line"],
+      "inheritance": "polygenic",
+      "description": "Line-bred for enhanced green coloration in normal-looking snakes",
+      "visualTraits": {
+        "green": 1.5,
+        "bodyColors": ["olive", "green", "emerald"]
+      },
+      "species": ["western"],
+      "rarity": 2,
+      "basePrice": 250,
+      "priceRange": { "min": 200, "max": 400 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/green_hognose.jpg"
+    }
+  },
+  "naturalPhases": {
+    "patterned": {
+      "id": "patterned",
+      "name": "Patterned Phase",
+      "species": ["eastern"],
+      "description": "Most common phase with dark blotches along back, variable background color",
+      "rarity": 1,
+      "basePrice": 150,
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Heterodon_platirhinos.jpg/1200px-Heterodon_platirhinos.jpg"
+    },
+    "melanistic": {
+      "id": "melanistic",
+      "name": "Melanistic Phase",
+      "species": ["eastern"],
+      "description": "Uniformly black dorsally, usually without visible pattern",
+      "rarity": 3,
+      "basePrice": 400,
+      "image": "https://www.morphmarket.com/media/cache/286x180/melanistic_eastern_hognose.jpg"
+    },
+    "patternless": {
+      "id": "patternless",
+      "name": "Patternless Phase",
+      "species": ["eastern"],
+      "description": "Solid colored without typical blotch pattern",
+      "rarity": 2,
+      "basePrice": 250,
+      "image": "https://www.morphmarket.com/media/cache/286x180/patternless_eastern_hognose.jpg"
+    },
+    "greenPhase": {
+      "id": "greenPhase",
+      "name": "Green Phase",
+      "species": ["eastern"],
+      "description": "Olive to bright green natural coloration",
+      "rarity": 3,
+      "basePrice": 350,
+      "image": "https://www.morphmarket.com/media/cache/286x180/green_eastern_hognose.jpg"
+    }
+  },
+  "comboMorphs": {
+    "snow": {
+      "id": "snow",
+      "name": "Snow",
+      "requires": ["albino", "axanthic"],
+      "description": "White or very pale snake, combination of Albino and Axanthic",
+      "rarity": 4,
+      "basePrice": 650,
+      "priceRange": { "min": 500, "max": 950 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/snow_hognose.jpg"
+    },
+    "yeti": {
+      "id": "yeti",
+      "name": "Yeti",
+      "aliases": ["Snow Conda", "Superconda Snow"],
+      "requires": ["albino", "axanthic", "anaconda"],
+      "description": "Snow coloration with reduced pattern from Anaconda gene",
+      "rarity": 5,
+      "basePrice": 1200,
+      "priceRange": { "min": 600, "max": 3500 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/yeti_hognose.jpg"
+    },
+    "sunburst": {
+      "id": "sunburst",
+      "name": "Sunburst",
+      "requires": ["sable", "albino"],
+      "description": "Sable and Albino combination with warm golden tones",
+      "rarity": 4,
+      "basePrice": 1500,
+      "priceRange": { "min": 1000, "max": 2500 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/sunburst_hognose.jpg"
+    },
+    "subzero": {
+      "id": "subzero",
+      "name": "Subzero",
+      "requires": ["albino", "superarctic"],
+      "description": "Pink snake with solid red eyes and pink translucent belly",
+      "rarity": 5,
+      "basePrice": 2500,
+      "priceRange": { "min": 2000, "max": 4000 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/subzero_hognose.jpg"
+    },
+    "moondust": {
+      "id": "moondust",
+      "name": "Moondust",
+      "aliases": ["Arctic Lavender"],
+      "requires": ["superarctic", "lavender"],
+      "description": "Superarctic and Lavender combination, ethereal appearance",
+      "rarity": 5,
+      "basePrice": 4000,
+      "priceRange": { "min": 1475, "max": 6000 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/moondust_hognose.jpg"
+    },
+    "moonstone": {
+      "id": "moonstone",
+      "name": "Moonstone",
+      "requires": ["arctic", "lavender"],
+      "description": "Arctic and Lavender combination with silvery lavender hue",
+      "rarity": 4,
+      "basePrice": 1500,
+      "priceRange": { "min": 1000, "max": 2500 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/moonstone_hognose.jpg"
+    },
+    "coral": {
+      "id": "coral",
+      "name": "Coral",
+      "aliases": ["Albino Lavender"],
+      "requires": ["albino", "lavender"],
+      "description": "Pink-colored hognose from Albino and Lavender combination",
+      "rarity": 4,
+      "basePrice": 1200,
+      "priceRange": { "min": 800, "max": 2000 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/coral_hognose.jpg"
+    },
+    "stormcloud": {
+      "id": "stormcloud",
+      "name": "Stormcloud",
+      "requires": ["sable", "axanthic"],
+      "description": "Sable and Axanthic combination with blue-gray tones",
+      "rarity": 4,
+      "basePrice": 1000,
+      "priceRange": { "min": 700, "max": 1800 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/stormcloud_hognose.jpg"
+    },
+    "antarctic": {
+      "id": "antarctic",
+      "name": "Antarctic",
+      "requires": ["arctic", "axanthic"],
+      "description": "Arctic and Axanthic combination, extreme grayscale",
+      "rarity": 4,
+      "basePrice": 900,
+      "priceRange": { "min": 600, "max": 1500 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/antarctic_hognose.jpg"
+    },
+    "platinum": {
+      "id": "platinum",
+      "name": "Platinum",
+      "requires": ["arctic", "anaconda"],
+      "description": "Arctic and Anaconda combination with silvery reduced pattern",
+      "rarity": 3,
+      "basePrice": 700,
+      "priceRange": { "min": 500, "max": 1200 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/platinum_hognose.jpg"
+    },
+    "albinoAnaconda": {
+      "id": "albinoAnaconda",
+      "name": "Albino Anaconda",
+      "requires": ["albino", "anaconda"],
+      "description": "Albino coloration with reduced pattern from Anaconda",
+      "rarity": 3,
+      "basePrice": 450,
+      "priceRange": { "min": 350, "max": 700 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/albino_anaconda_hognose.jpg"
+    },
+    "albinoSuperconda": {
+      "id": "albinoSuperconda",
+      "name": "Albino Superconda",
+      "requires": ["albino", "superconda"],
+      "description": "Patternless albino, solid orange/yellow coloration",
+      "rarity": 4,
+      "basePrice": 750,
+      "priceRange": { "min": 550, "max": 1200 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/albino_superconda_hognose.jpg"
+    },
+    "axanthicAnaconda": {
+      "id": "axanthicAnaconda",
+      "name": "Axanthic Anaconda",
+      "requires": ["axanthic", "anaconda"],
+      "description": "Grayscale coloration with reduced pattern",
+      "rarity": 3,
+      "basePrice": 500,
+      "priceRange": { "min": 400, "max": 800 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/axanthic_anaconda_hognose.jpg"
+    },
+    "caramelAnaconda": {
+      "id": "caramelAnaconda",
+      "name": "Caramel Anaconda",
+      "requires": ["caramel", "anaconda"],
+      "description": "Warm caramel tones with reduced pattern",
+      "rarity": 3,
+      "basePrice": 500,
+      "priceRange": { "min": 400, "max": 800 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/caramel_anaconda_hognose.jpg"
+    },
+    "cinnamonAnaconda": {
+      "id": "cinnamonAnaconda",
+      "name": "Cinnamon Anaconda",
+      "requires": ["cinnamon", "anaconda"],
+      "description": "Cinnamon coloration with reduced pattern",
+      "rarity": 3,
+      "basePrice": 550,
+      "priceRange": { "min": 400, "max": 850 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/cinnamon_anaconda_hognose.jpg"
+    },
+    "greenGoblin": {
+      "id": "greenGoblin",
+      "name": "Green Goblin",
+      "aliases": ["Pistachio Anaconda"],
+      "requires": ["pistachio", "anaconda"],
+      "description": "Pistachio with reduced pattern, green and pink hues",
+      "rarity": 5,
+      "basePrice": 1500,
+      "priceRange": { "min": 1000, "max": 2500 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/green_goblin_hognose.jpg"
+    },
+    "pistoffy": {
+      "id": "pistoffy",
+      "name": "Pistoffy",
+      "aliases": ["Pistachio Toffeebelly"],
+      "requires": ["pistachio", "toffeebelly"],
+      "description": "Pistachio and Toffeebelly combination",
+      "rarity": 5,
+      "basePrice": 1800,
+      "priceRange": { "min": 1200, "max": 3000 },
+      "image": "https://www.morphmarket.com/media/cache/286x180/pistoffy_hognose.jpg"
+    }
+  },
+  "pricingRules": {
+    "genderMultiplier": {
+      "male": 1.0,
+      "female": 1.3
+    },
+    "provenBreederBonus": 1.2,
+    "hetGeneBonus": 0.15,
+    "rarityMultipliers": {
+      "1": 1.0,
+      "2": 1.5,
+      "3": 2.0,
+      "4": 3.0,
+      "5": 5.0
+    },
+    "speciesMultipliers": {
+      "western": 1.0,
+      "eastern": 1.2,
+      "southern": 2.5
+    }
+  },
+  "imageCredits": {
+    "note": "Images should be replaced with licensed or generated images for production",
+    "sources": [
+      "Wikimedia Commons (CC licenses)",
+      "MorphMarket (reference only)",
+      "Unsplash (free use)"
+    ]
+  }
+}

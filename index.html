@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Breeder: Hognose Edition</title>
+  <meta name="description" content="Breed, collect, and trade hognose snakes with scientifically accurate genetics">
+  <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header id="game-header">
+      <div class="stats">
+        <span class="money">$<span id="money-display">500</span></span>
+        <span class="discovered"><span id="discovered-count">0</span> Morphs</span>
+        <span class="biome" id="current-biome">Prairie Grasslands</span>
+      </div>
+    </header>
+
+    <!-- 3D Canvas Container -->
+    <main id="game-viewport">
+      <canvas id="game-canvas"></canvas>
+
+      <!-- Loading Screen -->
+      <div id="loading-screen">
+        <div class="loader">
+          <div class="snake-icon">🐍</div>
+          <h1>Snake Breeder</h1>
+          <p>Loading morphs...</p>
+          <div class="progress-bar">
+            <div class="progress-fill" id="loading-progress"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav id="game-nav">
+      <button class="nav-btn active" data-panel="explore">
+        <span class="icon">🔍</span>
+        <span class="label">Explore</span>
+      </button>
+      <button class="nav-btn" data-panel="home">
+        <span class="icon">🏠</span>
+        <span class="label">Hem</span>
+      </button>
+      <button class="nav-btn" data-panel="collection">
+        <span class="icon">📦</span>
+        <span class="label">Collection</span>
+      </button>
+      <button class="nav-btn" data-panel="breed">
+        <span class="icon">🧬</span>
+        <span class="label">Breed</span>
+      </button>
+      <button class="nav-btn" data-panel="market">
+        <span class="icon">💰</span>
+        <span class="label">Market</span>
+      </button>
+    </nav>
+
+    <!-- Side Panels (hidden by default) -->
+    <aside id="panel-container" class="hidden">
+      <!-- Collection Panel -->
+      <div id="collection-panel" class="panel hidden">
+        <div class="panel-header">
+          <h2>Your Collection</h2>
+          <button class="close-btn">&times;</button>
+        </div>
+        <div class="panel-content">
+          <div id="snake-grid" class="snake-grid">
+            <!-- Snake cards will be inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Home Panel -->
+      <div id="home-panel" class="panel hidden">
+        <div class="panel-header">
+          <h2>🏠 Ditt Hem</h2>
+          <button class="close-btn">&times;</button>
+        </div>
+        <div class="panel-content">
+          <div class="home-section">
+            <h3>📦 Terrariumöversikt</h3>
+            <p class="section-desc">Dina ormar hemma</p>
+            <div id="home-terrariums" class="terrarium-grid">
+              <!-- Terrarium cards will be inserted here -->
+            </div>
+          </div>
+          <div class="home-section">
+            <h3>🧬 Aktiva Uppfödningar</h3>
+            <p class="section-desc">Ägg som kläcks snart</p>
+            <div id="active-breeding" class="breeding-list">
+              <p class="empty-state">Inga aktiva uppfödningar</p>
+            </div>
+          </div>
+          <button id="go-home-btn" class="action-btn primary">Teleportera till Hemmet</button>
+        </div>
+      </div>
+
+      <!-- Breeding Panel -->
+      <div id="breed-panel" class="panel hidden">
+        <div class="panel-header">
+          <h2>Breeding Lab</h2>
+          <button class="close-btn">&times;</button>
+        </div>
+        <div class="panel-content">
+          <div class="breeding-slots">
+            <div class="breed-slot" id="parent1-slot">
+              <span class="placeholder">Select Female</span>
+            </div>
+            <div class="breed-icon">❤️</div>
+            <div class="breed-slot" id="parent2-slot">
+              <span class="placeholder">Select Male</span>
+            </div>
+          </div>
+          <div id="offspring-preview" class="offspring-preview hidden">
+            <h3>Predicted Offspring</h3>
+            <div id="punnett-results"></div>
+          </div>
+          <button id="breed-btn" class="action-btn" disabled>Start Breeding</button>
+        </div>
+      </div>
+
+      <!-- Market Panel -->
+      <div id="market-panel" class="panel hidden">
+        <div class="panel-header">
+          <h2>Marketplace</h2>
+          <button class="close-btn">&times;</button>
+        </div>
+        <div class="panel-content">
+          <div class="market-tabs">
+            <button class="tab-btn active" data-tab="sell">Sell</button>
+            <button class="tab-btn" data-tab="buy">Buy</button>
+          </div>
+          <div id="market-listings" class="market-grid">
+            <!-- Market items will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Snake Encounter Modal -->
+    <div id="encounter-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="snake-preview" id="encounter-snake-preview">
+          <!-- 3D snake model or image -->
+        </div>
+        <div class="snake-info">
+          <h2 id="encounter-name">Wild Hognose</h2>
+          <p id="encounter-species" class="species">Western Hognose</p>
+          <div id="encounter-genetics" class="genetics">
+            <!-- Genetics info -->
+          </div>
+          <div id="encounter-value" class="value">Est. Value: $---</div>
+        </div>
+        <div class="modal-actions">
+          <button id="capture-btn" class="action-btn primary">Capture</button>
+          <button id="release-btn" class="action-btn secondary">Release</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
