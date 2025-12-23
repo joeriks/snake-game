@@ -522,6 +522,9 @@ export class World {
             this.keys[e.code] = false;
         });
 
+        this.isTouchDevice = 'ontouchstart' in window;
+        this.isUIOpen = false; // Flag to track if UI is open/blocking game
+
         // Mouse look (desktop with pointer lock)
         document.addEventListener('mousemove', (e) => {
             if (document.pointerLockElement) {
@@ -535,13 +538,13 @@ export class World {
 
         // Click to enable pointer lock (desktop)
         canvas.addEventListener('click', () => {
-            if (!document.pointerLockElement && !this.isTouchDevice) {
+            // Only lock if UI is closed and not on touch device
+            if (!document.pointerLockElement && !this.isTouchDevice && !this.isUIOpen) {
                 canvas.requestPointerLock();
             }
         });
 
         // === TOUCH CONTROLS (iPad/Mobile) ===
-        this.isTouchDevice = 'ontouchstart' in window;
         this.touchState = {
             isDragging: false,
             isMoving: false,
@@ -907,6 +910,23 @@ export class World {
             const deg = -(this.playerAngle * 180 / Math.PI);
             this.compassNeedle.style.transform = `translate(-50%, -100%) rotate(${deg}deg)`;
         }
+    }
+
+    /**
+     * Enable UI mode - release pointer lock and block new locks
+     */
+    enableUI() {
+        this.isUIOpen = true;
+        if (document.pointerLockElement) {
+            document.exitPointerLock();
+        }
+    }
+
+    /**
+     * Disable UI mode - allow pointer lock again
+     */
+    disableUI() {
+        this.isUIOpen = false;
     }
 
     /**
