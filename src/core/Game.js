@@ -252,13 +252,14 @@ export class Game {
             panel.classList.remove('hidden');
             setTimeout(() => panel.classList.add('active'), 10);
 
-            // Populate panel content
-        } else if (panelName === 'market') {
-            this.populateMarket();
-        } else if (panelName === 'home') {
-            this.populateHome();
-        } else if (panelName === 'breed') {
-            this.populateBreeding();
+            // Populate panel content based on panel type
+            if (panelName === 'market') {
+                this.populateMarket();
+            } else if (panelName === 'home') {
+                this.populateHome();
+            } else if (panelName === 'breed') {
+                this.populateBreeding();
+            }
         }
     }
 

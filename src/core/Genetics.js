@@ -193,8 +193,8 @@ export class Genetics {
             }
         } else if (morphType === 'hetDouble') {
             // Two het genes
-            const genes = this.pickMultipleFromBiomeGenes(biome, availableGenes, 2);
-            genes.forEach(gene => {
+            const selectedGenes = this.pickMultipleFromBiomeGenes(biome, availableGenes, 2);
+            selectedGenes.forEach(gene => {
                 genotype[gene] = [gene, '+'];
             });
         } else if (morphType === 'visual') {

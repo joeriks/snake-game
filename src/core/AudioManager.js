@@ -205,10 +205,8 @@ export class AudioManager {
             osc.stop(startTime + noteDuration + 0.15);
         });
 
-        // Final sparkle
-        setTimeout(() => {
-            this.playSparkle();
-        }, notes.length * noteDuration * 1000);
+        // Final sparkle - scheduled using audio context timing
+        this.playSparkleAt(now + notes.length * noteDuration);
     }
 
     /**
@@ -216,24 +214,30 @@ export class AudioManager {
      */
     playSparkle() {
         if (!this.enabled || !this.audioContext) return;
+        this.playSparkleAt(this.audioContext.currentTime);
+    }
 
-        const now = this.audioContext.currentTime;
+    /**
+     * Sparkle effect scheduled at a specific time
+     */
+    playSparkleAt(startTime) {
+        if (!this.enabled || !this.audioContext) return;
 
         for (let i = 0; i < 3; i++) {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
 
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(2000 + i * 500, now + i * 0.05);
-            osc.frequency.exponentialRampToValueAtTime(3000 + i * 500, now + i * 0.05 + 0.1);
+            osc.frequency.setValueAtTime(2000 + i * 500, startTime + i * 0.05);
+            osc.frequency.exponentialRampToValueAtTime(3000 + i * 500, startTime + i * 0.05 + 0.1);
 
-            gain.gain.setValueAtTime(0.08, now + i * 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.15);
+            gain.gain.setValueAtTime(0.08, startTime + i * 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + i * 0.05 + 0.15);
 
             osc.connect(gain);
             gain.connect(this.masterGain);
-            osc.start(now + i * 0.05);
-            osc.stop(now + i * 0.05 + 0.2);
+            osc.start(startTime + i * 0.05);
+            osc.stop(startTime + i * 0.05 + 0.2);
         }
     }
 

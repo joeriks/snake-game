@@ -78,11 +78,22 @@ export class SaveManager {
 
     /**
      * Migrate old save format to current version
+     * TODO: Implement actual migration logic when save format changes
      */
     migrate(saveData) {
-        // Future: Add migration logic here
-        console.log('Migrating save from version', saveData.version);
-        return saveData.state;
+        console.log('Migrating save from version', saveData.version, 'to', SAVE_VERSION);
+
+        // TODO: Add version-specific migrations here, e.g.:
+        // if (saveData.version === '0.9.0') {
+        //     saveData.state = this.migrateFrom090(saveData.state);
+        //     saveData.version = '1.0.0';
+        // }
+
+        // Re-save with updated version after migration
+        const migratedState = saveData.state;
+        this.save(migratedState);
+
+        return migratedState;
     }
 
     /**
