@@ -113,6 +113,27 @@ body {
   font-weight: 700;
 }
 
+/* Sound Toggle Button */
+.sound-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(10px);
+}
+
+.sound-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.sound-btn.muted {
+  opacity: 0.5;
+}
+
 /* === Game Viewport === */
 #game-viewport {
   flex: 1;

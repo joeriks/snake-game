@@ -173,6 +173,15 @@ export class Game {
         // Go Home button
         document.getElementById('go-home-btn')?.addEventListener('click', () => this.goHome());
 
+        // Sound toggle button
+        const soundToggle = document.getElementById('sound-toggle');
+        soundToggle?.addEventListener('click', () => {
+            const enabled = audioManager.toggle();
+            soundToggle.textContent = enabled ? '🔊' : '🔇';
+            soundToggle.classList.toggle('muted', !enabled);
+            audioManager.playUIClick(); // Play click if just enabled
+        });
+
         // Click on canvas to explore
         this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
     }
