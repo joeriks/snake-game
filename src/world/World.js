@@ -693,6 +693,173 @@ export class World {
 
         // Check for nearby coins and collect them
         this.checkNearbyCoins();
+
+        // Update minimap
+        this.updateMinimap();
+    }
+
+    /**
+     * Update minimap visualization
+     */
+    updateMinimap() {
+        if (!this.minimapCtx) return;
+
+        // Track visited cells
+        const cellX = Math.floor(this.playerPosition.x / this.cellSize);
+        const cellZ = Math.floor(this.playerPosition.z / this.cellSize);
+        const cellKey = `${cellX},${cellZ}`;
+
+        // Mark current and adjacent cells as visited
+        for (let x = -1; x <= 1; x++) {
+            for (let z = -1; z <= 1; z++) {
+                this.visitedCells.add(`${cellX + x},${cellZ + z}`);
+            }
+        }
+
+        // Clear canvas
+        const width = this.minimapCanvas.width;
+        const height = this.minimapCanvas.height;
+        const ctx = this.minimapCtx;
+
+        ctx.fillStyle = '#0f3460'; // Dark background
+        ctx.fillRect(0, 0, width, height);
+
+        // Center map on player
+        ctx.save();
+        ctx.translate(width / 2, height / 2);
+
+        // Rotate map so "forward" is always up?
+        // Let's implement fixed North-Up map for easier navigation with compass
+        // The player arrow will rotate instead
+
+        // Draw visited areas
+        const viewRange = 80; // World units to show in each direction
+        const scaledSize = this.cellSize * this.minimapScale;
+
+        // Optimize: iterera bara över synliga celler istället för alla besökta om Set blir stort
+        // För nu itererar vi över alla besökta eftersom världen är begränsad
+
+        ctx.fillStyle = '#4ecca3'; // Visited color (greenish)
+
+        this.visitedCells.forEach(key => {
+            const [cx, cz] = key.split(',').map(Number);
+
+            // Calculate relative position to player
+            const worldX = cx * this.cellSize;
+            const worldZ = cz * this.cellSize;
+
+            const screenX = (worldX - this.playerPosition.x) * this.minimapScale;
+            const screenZ = (worldZ - this.playerPosition.z) * this.minimapScale;
+
+            // Draw if within view
+            if (Math.abs(screenX) < width / 2 + scaledSize && Math.abs(screenZ) < height / 2 + scaledSize) {
+                // Invert Z because canvas Y is down, but 3D Z is "down" in map view (forward is -Z)
+                // Actually in 2D top-down: +X is right, +Z is down. Canvas: +X right, +Y down.
+                // So mapping is direct: X->X, Z->Y
+                ctx.fillRect(screenX, screenZ, scaledSize, scaledSize);
+            }
+        });
+
+        // Draw Home marker
+        if (this.home) {
+            const homePos = this.home.getSpawnPosition();
+            const homeX = (homePos.x - this.playerPosition.x) * this.minimapScale;
+            const homeZ = (homePos.z - this.playerPosition.z) * this.minimapScale;
+
+            ctx.fillStyle = '#ff6b6b'; // Home color (Red)
+            ctx.beginPath();
+            ctx.arc(homeX, homeZ, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw player indicator (always in center)
+        ctx.fillStyle = '#ffd700'; // Gold
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw view direction cone
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        // Player angle 0 is towards -Z (North/Up in 3D), so -PI/2 in 2D unit circle?
+        // Actually: 3D forward is ( -sin(angle), 0, -cos(angle) )
+        // In 2D map (X, Z->Y): Forward is (-sin(a), -cos(a))
+        // So we rotate context by -angle to match
+
+        // Let's just calculate arrow tip position
+        const arrowLen = 10;
+        const tipX = -Math.sin(this.playerAngle) * arrowLen;
+        const tipY = -Math.cos(this.playerAngle) * arrowLen; // Z becomes Y
+
+        ctx.lineTo(tipX, tipY);
+        ctx.stroke();
+
+        ctx.restore();
+
+        // Update Compass Needle
+        // Compass should point North (which is -Z in 3D)
+        // If player faces North (angle 0), forward is Up. Needle points Up.
+        // If player turns right (angle decreasing in our logic?), world rotates left.
+        // Wait, map is Fixed North-Up?
+        // "det ska finnas en karta (minimap) som visar områden man har varit i och och en kompass"
+
+        // If Map is North-Up:
+        // Visited cells are drawn at (cellX - playerX), (cellZ - playerZ). 
+        // Forward is -Z. So North is Up on the canvas (negative Y).
+        // Player arrow rotates to show facing.
+        // Compass needle usually points North relative to the bezel.
+        // If the Bezel is fixed (N is always top), the needle is fixed pointing up?
+        // Or is it a HUD compass? usually "Compass" means an element pointing North.
+        // If the map rotates with player (Heads-Up), then North arrow rotates.
+        // My map implementation above is North-Up (drawing relative X/Z directly).
+
+        // So map is translations only, no rotation.
+        // Player cursor indicates direction.
+        // Compass needle: In a North-Up map, North is always Up. So needle stays Up?
+        // That's boring. usually compass rotates if the player rotates.
+        // But if the map is North-Up, the player arrow rotates.
+
+        // Let's stick with North-Up Map + Player Arrow rotating.
+        // And for the Compass UI element:
+        // If it's a separate UI element, maybe it shows relative direction?
+        // "N" on top. Needle points to North relative to player heading?
+        // No, standard compass: Needle points North. Bezel might rotate.
+        // My CSS compass has "N" fixed at top. So Needle should rotate?
+        // If "N" is fixed at top, it implies North is "forward" relative to screen? 
+        // Or "N" is just the label for the North direction.
+
+        // Let's make the needle point to absolute North relative to player facing.
+        // If Player faces North (0), Needle points Up (0).
+        // If Player faces East (-PI/2), Needle points Left (90 deg counter-clockwise).
+        // Angle logic: PlayerAngle increases turning Left (positive X is left? wait).
+        // World.js: ArrowLeft += turnSpeed. ArrowRight -= turnSpeed.
+        // Initial 0. Forward: -sin(0)=0, -cos(0)=-1 (Negative Z).
+        // Left Turn (positive angle): -sin(pos) -> negative X. 
+        // Right Turn (negative angle): -sin(neg) -> positive X.
+        // Wait, standard 3D: +X is Right.
+        // If I press Left, angle increases. -sin(angle) becomes negative. -cos(angle) stays neg/pos.
+        // So angle > 0 means pointing towards -X (Left). Correct.
+
+        // So:
+        // Angle 0: North (-Z). Needle should point Up (0 deg).
+        // Angle +PI/2: West (-X). Needle should point Right (90 deg) relative to player?
+        // If I face West, North is to my Right.
+        // CSS rotation: 0 is Up/North. Positive is CW.
+        // We need needle to point North relative to *Player View*.
+        // If I look West, North is Right (90 deg).
+        // Player Angle +PI/2 (West). We want Needle +90 (Right).
+        // So Needle Rotation = +PlayerAngle ?
+
+        // Let's test:
+        // Face East (-PI/2). North is Left (-90 deg).
+        // Player Angle -PI/2. Needle Rotation -90.
+        // Seems correct: Needle Rotation = radToDeg(this.playerAngle).
+
+        if (this.compassNeedle) {
+            const deg = (this.playerAngle * 180 / Math.PI);
+            this.compassNeedle.style.transform = `translate(-50%, -100%) rotate(${deg}deg)`;
+        }
     }
 
     /**
