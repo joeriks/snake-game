@@ -1,15 +1,17 @@
 /**
- * Home - Player's Home Base
- * A small house where the player starts and can view their snakes
+ * Home - Village with multiple houses and paths
+ * The player's home base and surrounding village
  */
 
 import * as THREE from 'three';
 
 export class Home {
-    constructor(scene) {
+    constructor(scene, getTerrainHeight = null) {
         this.scene = scene;
+        this.getTerrainHeight = getTerrainHeight || ((x, z) => 0);
         this.group = new THREE.Group();
         this.terrariums = [];
+        this.houses = []; // Multiple houses
         this.position = new THREE.Vector3(0, 0, 0);
     }
 
@@ -17,26 +19,40 @@ export class Home {
      * Initialize home and add to scene
      */
     init() {
-        this.createHouse();
+        // Main player house at origin
+        this.createHouse(0, -8, true); // isPlayerHome = true
         this.createPorch();
         this.createTerrariumStands();
         this.createBreedingStation();
-        this.createPathway();
+
+        // Village houses - spread across terrain
+        this.createVillageHouse(35, 20, 'Farmer');
+        this.createVillageHouse(-40, 25, 'Trader');
+        this.createVillageHouse(25, -35, 'Breeder');
+
+        // Paths connecting houses
+        this.createPathBetween(0, 0, 35, 20);   // Main to Farmer
+        this.createPathBetween(0, 0, -40, 25);  // Main to Trader
+        this.createPathBetween(0, 0, 25, -35);  // Main to Breeder
+        this.createPathBetween(35, 20, 25, -35); // Farmer to Breeder
+
+        // Fence around main property only (terrain-following)
         this.createFence();
 
         this.scene.add(this.group);
     }
 
     /**
-     * Create the main house structure
+     * Create the main house structure at given position
      */
-    createHouse() {
+    createHouse(x = 0, z = -8, isPlayerHome = false) {
         const house = new THREE.Group();
+        const terrainY = this.getTerrainHeight(x, z);
 
         // Main walls - cozy wooden cabin
         const wallsGeometry = new THREE.BoxGeometry(8, 3.5, 6);
         const wallsMaterial = new THREE.MeshStandardMaterial({
-            color: 0x8B6914, // Warm wood color
+            color: 0x8B6914,
             roughness: 0.9
         });
         const walls = new THREE.Mesh(wallsGeometry, wallsMaterial);
@@ -54,7 +70,7 @@ export class Home {
         const extrudeSettings = { depth: 7, bevelEnabled: false };
         const roofGeometry = new THREE.ExtrudeGeometry(roofShape, extrudeSettings);
         const roofMaterial = new THREE.MeshStandardMaterial({
-            color: 0x4A3728, // Dark brown roof
+            color: 0x4A3728,
             roughness: 0.8
         });
         const roof = new THREE.Mesh(roofGeometry, roofMaterial);
@@ -65,7 +81,7 @@ export class Home {
         // Door
         const doorGeometry = new THREE.BoxGeometry(1.2, 2.2, 0.1);
         const doorMaterial = new THREE.MeshStandardMaterial({
-            color: 0x5D3A1A, // Dark wood door
+            color: 0x5D3A1A,
             roughness: 0.7
         });
         const door = new THREE.Mesh(doorGeometry, doorMaterial);
@@ -98,8 +114,101 @@ export class Home {
         chimney.castShadow = true;
 
         house.add(walls, roof, door, windowLeft, windowRight, chimney);
-        house.position.set(0, 0, -8);
+        house.position.set(x, terrainY, z);
+
+        this.houses.push({ group: house, x, z, isPlayerHome });
         this.group.add(house);
+    }
+
+    /**
+     * Create a smaller village house
+     */
+    createVillageHouse(x, z, ownerName) {
+        const house = new THREE.Group();
+        const terrainY = this.getTerrainHeight(x, z);
+
+        // Smaller cottage
+        const wallsGeometry = new THREE.BoxGeometry(5, 2.5, 4);
+        const wallsMaterial = new THREE.MeshStandardMaterial({
+            color: 0x9B7653,
+            roughness: 0.9
+        });
+        const walls = new THREE.Mesh(wallsGeometry, wallsMaterial);
+        walls.position.y = 1.25;
+        walls.castShadow = true;
+
+        // Simple roof
+        const roofShape = new THREE.Shape();
+        roofShape.moveTo(-3.2, 0);
+        roofShape.lineTo(0, 1.8);
+        roofShape.lineTo(3.2, 0);
+        roofShape.lineTo(-3.2, 0);
+
+        const roofGeometry = new THREE.ExtrudeGeometry(roofShape, { depth: 5, bevelEnabled: false });
+        const roofMaterial = new THREE.MeshStandardMaterial({
+            color: 0x6B5344,
+            roughness: 0.8
+        });
+        const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+        roof.rotation.x = Math.PI / 2;
+        roof.position.set(0, 2.5, 2.5);
+        roof.castShadow = true;
+
+        // Door
+        const doorGeometry = new THREE.BoxGeometry(0.9, 1.8, 0.1);
+        const doorMaterial = new THREE.MeshStandardMaterial({ color: 0x5D3A1A });
+        const door = new THREE.Mesh(doorGeometry, doorMaterial);
+        door.position.set(0, 0.9, 2.05);
+
+        // Window
+        const windowGeometry = new THREE.BoxGeometry(0.8, 0.7, 0.1);
+        const windowMaterial = new THREE.MeshStandardMaterial({
+            color: 0x87CEEB,
+            transparent: true,
+            opacity: 0.5,
+            emissive: 0xFFE4B5,
+            emissiveIntensity: 0.2
+        });
+        const windowMesh = new THREE.Mesh(windowGeometry, windowMaterial);
+        windowMesh.position.set(1.5, 1.5, 2.05);
+
+        house.add(walls, roof, door, windowMesh);
+        house.position.set(x, terrainY, z);
+
+        this.houses.push({ group: house, x, z, ownerName });
+        this.group.add(house);
+    }
+
+    /**
+     * Create a stone path between two points following terrain
+     */
+    createPathBetween(x1, z1, x2, z2) {
+        const stoneMaterial = new THREE.MeshStandardMaterial({
+            color: 0x807060,
+            roughness: 0.95
+        });
+
+        const distance = Math.sqrt((x2 - x1) ** 2 + (z2 - z1) ** 2);
+        const stoneCount = Math.floor(distance / 3); // One stone every 3 units
+
+        for (let i = 0; i <= stoneCount; i++) {
+            const t = i / stoneCount;
+            const x = x1 + (x2 - x1) * t + (Math.random() - 0.5) * 0.8;
+            const z = z1 + (z2 - z1) * t + (Math.random() - 0.5) * 0.8;
+            const terrainY = this.getTerrainHeight(x, z);
+
+            const stoneGeometry = new THREE.CylinderGeometry(
+                0.3 + Math.random() * 0.2,
+                0.4 + Math.random() * 0.2,
+                0.08,
+                6
+            );
+            const stone = new THREE.Mesh(stoneGeometry, stoneMaterial);
+            stone.position.set(x, terrainY + 0.04, z);
+            stone.rotation.y = Math.random() * Math.PI;
+            stone.receiveShadow = true;
+            this.group.add(stone);
+        }
     }
 
     /**
@@ -284,6 +393,7 @@ export class Home {
         ];
 
         pathPositions.forEach(pos => {
+            const terrainY = this.getTerrainHeight(pos.x, pos.z);
             const stoneGeometry = new THREE.CylinderGeometry(
                 0.4 + Math.random() * 0.2,
                 0.5 + Math.random() * 0.2,
@@ -291,7 +401,7 @@ export class Home {
                 8
             );
             const stone = new THREE.Mesh(stoneGeometry, stoneMaterial);
-            stone.position.set(pos.x, 0.05, pos.z);
+            stone.position.set(pos.x, terrainY + 0.05, pos.z);
             stone.rotation.y = Math.random() * Math.PI;
             stone.receiveShadow = true;
             this.group.add(stone);
@@ -316,9 +426,10 @@ export class Home {
                 const t = i / posts;
                 const x = startX + (endX - startX) * t;
                 const z = startZ + (endZ - startZ) * t;
+                const terrainY = this.getTerrainHeight(x, z);
 
                 const post = new THREE.Mesh(postGeometry, fenceMaterial);
-                post.position.set(x, 0.6, z);
+                post.position.set(x, terrainY + 0.6, z);
                 post.castShadow = true;
                 this.group.add(post);
             }

@@ -78,10 +78,11 @@ export class World {
     }
 
     /**
-     * Create the player's home base
+     * Create the player's home base and village
      */
     createHome() {
-        this.home = new Home(this.scene);
+        // Pass terrain height function so village elements follow terrain
+        this.home = new Home(this.scene, (x, z) => this.getTerrainHeight(x, z));
         this.home.init();
     }
 
@@ -400,10 +401,12 @@ export class World {
                     this.onCoinCollected(coin.value);
                 }
             } else {
-                // Animate coin rotation and hover
+                // Animate coin rotation only, keep height constant
                 const time = now * 0.002;
                 coin.mesh.rotation.z = time;
-                coin.mesh.position.y = 0.5 + Math.sin(time * 2 + coin.position.x) * 0.1;
+                // Fixed height above terrain with gentle uniform bob
+                const terrainY = this.getTerrainHeight(coin.position.x, coin.position.z);
+                coin.mesh.position.y = terrainY + 0.5 + Math.sin(time * 2) * 0.05;
             }
         }
     }
