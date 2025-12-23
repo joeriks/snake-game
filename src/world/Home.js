@@ -60,6 +60,12 @@ export class Home {
         walls.castShadow = true;
         walls.receiveShadow = true;
 
+        // Foundation (solid block underneath to prevent floating on uneven terrain)
+        const foundationGeometry = new THREE.BoxGeometry(7.8, 3, 5.8);
+        const foundationMaterial = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 1 });
+        const foundation = new THREE.Mesh(foundationGeometry, foundationMaterial);
+        foundation.position.y = -1.5; // Starts at 0, goes down 3 units
+
         // Roof - triangular prism
         const roofShape = new THREE.Shape();
         roofShape.moveTo(-5, 0);
@@ -109,11 +115,10 @@ export class Home {
             color: 0x8B4513,
             roughness: 0.9
         });
-        const chimney = new THREE.Mesh(chimneyGeometry, chimneyMaterial);
         chimney.position.set(3, 5, -1);
         chimney.castShadow = true;
 
-        house.add(walls, roof, door, windowLeft, windowRight, chimney);
+        house.add(walls, foundation, roof, door, windowLeft, windowRight, chimney);
         house.position.set(x, terrainY, z);
 
         this.houses.push({ group: house, x, z, isPlayerHome });
@@ -136,6 +141,12 @@ export class Home {
         const walls = new THREE.Mesh(wallsGeometry, wallsMaterial);
         walls.position.y = 1.25;
         walls.castShadow = true;
+
+        // Foundation
+        const foundationGeometry = new THREE.BoxGeometry(4.8, 3, 3.8);
+        const foundationMaterial = new THREE.MeshStandardMaterial({ color: 0x666666, roughness: 1 });
+        const foundation = new THREE.Mesh(foundationGeometry, foundationMaterial);
+        foundation.position.y = -1.5;
 
         // Simple roof
         const roofShape = new THREE.Shape();
@@ -172,7 +183,7 @@ export class Home {
         const windowMesh = new THREE.Mesh(windowGeometry, windowMaterial);
         windowMesh.position.set(1.5, 1.5, 2.05);
 
-        house.add(walls, roof, door, windowMesh);
+        house.add(walls, foundation, roof, door, windowMesh);
         house.position.set(x, terrainY, z);
 
         this.houses.push({ group: house, x, z, ownerName });

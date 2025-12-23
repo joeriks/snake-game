@@ -7,7 +7,7 @@ export class AudioManager {
     constructor() {
         this.audioContext = null;
         this.masterGain = null;
-        this.enabled = true;
+        this.enabled = false; // Default: muted
         this.volume = 0.5;
 
         // Footstep timing
@@ -15,6 +15,14 @@ export class AudioManager {
         this.footstepInterval = 400; // ms between steps
         this.footstepAlt = false; // Alternate between left/right foot
     }
+
+    /**
+     * Update the footstep interval
+     */
+    setFootstepRate(interval) {
+        this.footstepInterval = interval;
+    }
+
 
     /**
      * Initialize the audio context (must be called after user interaction)
@@ -428,12 +436,18 @@ export class AudioManager {
 
     /**
      * Snake nearby indicator - subtle alert
+     * @param {number} pan - Panning value (-1 to 1)
      */
-    playSnakeNearby() {
+    playSnakeNearby(pan = 0) {
         if (!this.enabled || !this.audioContext) return;
         this.resume();
 
         const now = this.audioContext.currentTime;
+
+        // Stereo panner
+        const panner = this.audioContext.createStereoPanner();
+        panner.pan.value = Math.max(-1, Math.min(1, pan));
+        panner.connect(this.masterGain);
 
         // Subtle pulse
         const osc = this.audioContext.createOscillator();
@@ -447,7 +461,7 @@ export class AudioManager {
         gain.gain.linearRampToValueAtTime(0, now + 0.3);
 
         osc.connect(gain);
-        gain.connect(this.masterGain);
+        gain.connect(panner); // Connect to panner instead of master directly
 
         osc.start(now);
         osc.stop(now + 0.3);

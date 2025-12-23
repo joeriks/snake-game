@@ -57,7 +57,7 @@ export class World {
         this.sprintSpeed = 0.12;      // Running speed (2.4x faster)
         this.currentMoveSpeed = this.walkSpeed;
         this.moveDuration = 0;        // How long player has been moving
-        this.sprintThreshold = 0.5;   // Seconds before sprint kicks in
+        this.sprintThreshold = 2.0;   // Seconds before sprint kicks in
         this.sprintAcceleration = 0.15; // How fast to accelerate to sprint
         this.turnSpeed = 0.025;
         this.keys = {};
@@ -466,7 +466,28 @@ export class World {
         if (this.nearbySnake && !this.nearbySnake.alertPlayed) {
             const now = Date.now();
             if (now - this.lastSnakeAlertTime > this.snakeAlertCooldown) {
-                audioManager.playSnakeNearby();
+                // Calculate panning based on angle to snake relative to player facing
+                // Player direction vector: (-sin(angle), 0, -cos(angle))
+                // Right vector: (-cos(angle), 0, sin(angle))
+
+                // Vector to snake
+                const dx = this.nearbySnake.position.x - this.playerPosition.x;
+                const dz = this.nearbySnake.position.z - this.playerPosition.z;
+
+                // Project onto player's right vector to get pan (-1 to 1)
+                // Right vector components
+                const rx = -Math.cos(this.playerAngle);
+                const rz = Math.sin(this.playerAngle);
+
+                // Dot product for pan amount (normalized by dist if needed, but direction matters mostly)
+                // Normalize direction to snake first
+                const distToSnake = Math.sqrt(dx * dx + dz * dz);
+                const dirX = dx / distToSnake;
+                const dirZ = dz / distToSnake;
+
+                const pan = (dirX * rx + dirZ * rz);
+
+                audioManager.playSnakeNearby(pan);
                 this.lastSnakeAlertTime = now;
                 this.nearbySnake.alertPlayed = true;
             }
@@ -659,7 +680,15 @@ export class World {
 
         // Head bob animation when walking
         if (this.isWalking) {
-            this.walkTime += 0.16;
+            // Speed up footsteps when sprinting
+            const isSprinting = this.currentMoveSpeed > this.walkSpeed * 1.5;
+            const bobSpeed = isSprinting ? this.headBobSpeed * 1.5 : this.headBobSpeed;
+
+            this.walkTime += 0.16 * (isSprinting ? 1.5 : 1.0);
+
+            // Adjust audio rate
+            const footstepRate = isSprinting ? 300 : 400;
+            audioManager.setFootstepRate(footstepRate);
             audioManager.playFootstep();
         }
         const targetHeadBob = this.isWalking
@@ -857,7 +886,25 @@ export class World {
         // Seems correct: Needle Rotation = radToDeg(this.playerAngle).
 
         if (this.compassNeedle) {
-            const deg = (this.playerAngle * 180 / Math.PI);
+            // Invert rotation to match CSS clockwise vs Math anti-clockwise
+            // Player turning left (positive angle) -> Needle should point Right (relative to Up/IsNorth)
+            // Wait. If I turn Left (N becomes Right). Map is fixed N-up.
+            // Arrow points direction. 
+            // Compass usually: Needle points North.
+            // My compass logic: Needle rotates.
+            // If I face North (0), Needle 0 (Up).
+            // If I face West (+PI/2, left turn), North is to my Right. Needle should rotate +90 (CW)?
+            // angle +PI/2. deg = +90. CSS rotate(90deg) -> Right.
+            // So actually positive angle -> positive rotation seems correct for "Needle Points North relative to view"?
+            // BUT user said "peka mot den riktning man går åt".
+            // "Compass needle points direction you walk".
+            // That's a Heading Indicator, not a Magnetic Compass.
+            // If Heading Indicator:
+            // Face North (0) -> Arrow Up.
+            // Face West (+PI/2) -> Arrow Left (-90 deg).
+            // My previous code: deg = +90 (Right).
+            // So I need to invert it.
+            const deg = -(this.playerAngle * 180 / Math.PI);
             this.compassNeedle.style.transform = `translate(-50%, -100%) rotate(${deg}deg)`;
         }
     }
