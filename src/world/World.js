@@ -52,8 +52,13 @@ export class World {
         // Smoothed head bob to prevent abrupt stops
         this.smoothedHeadBob = 0;
 
-        // Movement - slow walking pace
-        this.moveSpeed = 0.05;
+        // Movement - walking and running speeds
+        this.walkSpeed = 0.05;        // Slow walking pace
+        this.sprintSpeed = 0.12;      // Running speed (2.4x faster)
+        this.currentMoveSpeed = this.walkSpeed;
+        this.moveDuration = 0;        // How long player has been moving
+        this.sprintThreshold = 0.5;   // Seconds before sprint kicks in
+        this.sprintAcceleration = 0.15; // How fast to accelerate to sprint
         this.turnSpeed = 0.025;
         this.keys = {};
         this.setupControls();
@@ -574,6 +579,7 @@ export class World {
      * Update loop - First Person Walking
      */
     update() {
+        const wasWalking = this.isWalking;
         this.isWalking = false;
 
         // Calculate movement direction
@@ -590,26 +596,41 @@ export class World {
 
         // WASD movement
         if (this.keys['KeyW'] || this.keys['ArrowUp']) {
-            this.playerPosition.add(forward.clone().multiplyScalar(this.moveSpeed));
+            this.playerPosition.add(forward.clone().multiplyScalar(this.currentMoveSpeed));
             this.isWalking = true;
         }
         if (this.keys['KeyS'] || this.keys['ArrowDown']) {
-            this.playerPosition.add(forward.clone().multiplyScalar(-this.moveSpeed));
+            this.playerPosition.add(forward.clone().multiplyScalar(-this.currentMoveSpeed));
             this.isWalking = true;
         }
         if (this.keys['KeyA']) {
-            this.playerPosition.add(right.clone().multiplyScalar(-this.moveSpeed));
+            this.playerPosition.add(right.clone().multiplyScalar(-this.currentMoveSpeed));
             this.isWalking = true;
         }
         if (this.keys['KeyD']) {
-            this.playerPosition.add(right.clone().multiplyScalar(this.moveSpeed));
+            this.playerPosition.add(right.clone().multiplyScalar(this.currentMoveSpeed));
             this.isWalking = true;
         }
 
         // Touch movement - hold to walk forward
         if (this.touchState && this.touchState.isMoving) {
-            this.playerPosition.add(forward.clone().multiplyScalar(this.moveSpeed));
+            this.playerPosition.add(forward.clone().multiplyScalar(this.currentMoveSpeed));
             this.isWalking = true;
+        }
+
+        // Sprint acceleration - build up speed while moving
+        if (this.isWalking) {
+            this.moveDuration += 0.016; // Approximate frame time (~60fps)
+
+            // After threshold, start accelerating to sprint speed
+            if (this.moveDuration > this.sprintThreshold) {
+                const targetSpeed = this.sprintSpeed;
+                this.currentMoveSpeed += (targetSpeed - this.currentMoveSpeed) * this.sprintAcceleration;
+            }
+        } else {
+            // Reset to walking speed when stopping
+            this.moveDuration = 0;
+            this.currentMoveSpeed = this.walkSpeed;
         }
 
         // Arrow keys for turning (alternative to mouse)
