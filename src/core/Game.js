@@ -8,6 +8,7 @@ import { World } from '../world/World.js';
 import { SaveManager } from './SaveManager.js';
 import { Snake } from './Snake.js';
 import { Genetics } from './Genetics.js';
+import { audioManager } from './AudioManager.js';
 import morphData from '../../data/morphs.json';
 
 export class Game {
@@ -71,6 +72,7 @@ export class Game {
         this.world.onCoinCollected = (value) => {
             this.state.money += value;
             this.updateUI();
+            audioManager.playCoinCollect();
             console.log(`💰 Collected coin worth $${value}!`);
         };
 
@@ -134,21 +136,39 @@ export class Game {
     }
 
     setupUI() {
+        // Initialize audio on first user interaction
+        const initAudio = () => {
+            audioManager.init();
+            document.removeEventListener('click', initAudio);
+            document.removeEventListener('touchstart', initAudio);
+        };
+        document.addEventListener('click', initAudio);
+        document.addEventListener('touchstart', initAudio);
+
         // Navigation buttons
         const navButtons = document.querySelectorAll('.nav-btn');
         navButtons.forEach(btn => {
-            btn.addEventListener('click', () => this.handleNavClick(btn));
+            btn.addEventListener('click', () => {
+                audioManager.playUIClick();
+                this.handleNavClick(btn);
+            });
         });
 
         // Close panel buttons
         const closeButtons = document.querySelectorAll('.close-btn');
         closeButtons.forEach(btn => {
-            btn.addEventListener('click', () => this.closeAllPanels());
+            btn.addEventListener('click', () => {
+                audioManager.playUIClick();
+                this.closeAllPanels();
+            });
         });
 
         // Encounter modal buttons
         document.getElementById('capture-btn')?.addEventListener('click', () => this.captureSnake());
-        document.getElementById('release-btn')?.addEventListener('click', () => this.releaseSnake());
+        document.getElementById('release-btn')?.addEventListener('click', () => {
+            audioManager.playUIClick();
+            this.releaseSnake();
+        });
 
         // Go Home button
         document.getElementById('go-home-btn')?.addEventListener('click', () => this.goHome());
@@ -174,6 +194,7 @@ export class Game {
     openPanel(panelName) {
         const container = document.getElementById('panel-container');
         container.classList.remove('hidden');
+        audioManager.playPanelOpen();
 
         // Hide all panels
         document.querySelectorAll('.panel').forEach(p => {
@@ -203,6 +224,7 @@ export class Game {
         document.querySelectorAll('.panel').forEach(p => {
             p.classList.remove('active');
         });
+        audioManager.playPanelClose();
         setTimeout(() => container.classList.add('hidden'), 250);
     }
 
@@ -234,6 +256,8 @@ export class Game {
      * Show the encounter modal with snake info
      */
     showEncounterModal(snake) {
+        audioManager.playSnakeDiscovery();
+
         const modal = document.getElementById('encounter-modal');
         document.getElementById('encounter-name').textContent = snake.getDisplayName();
         document.getElementById('encounter-species').textContent = snake.getSpeciesName();
@@ -262,6 +286,7 @@ export class Game {
 
     captureSnake() {
         if (this.currentEncounter) {
+            audioManager.playSnakeCapture();
             this.state.collection.push(this.currentEncounter);
 
             // Track discovered morphs
@@ -374,6 +399,7 @@ export class Game {
      */
     goHome() {
         if (this.world) {
+            audioManager.playTeleport();
             this.world.goHome();
             this.closeAllPanels();
 

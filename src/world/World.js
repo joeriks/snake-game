@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { SeededRandom, WORLD_SEED } from '../core/SeededRandom.js';
 import { Home } from './Home.js';
+import { audioManager } from '../core/AudioManager.js';
 
 export class World {
     constructor(scene, camera, onSnakeFound) {
@@ -56,6 +57,10 @@ export class World {
         this.turnSpeed = 0.025;
         this.keys = {};
         this.setupControls();
+
+        // Snake proximity alert
+        this.lastSnakeAlertTime = 0;
+        this.snakeAlertCooldown = 3000; // 3 seconds between alerts
     }
 
     async init() {
@@ -439,6 +444,17 @@ export class World {
         }
 
         this.nearbySnake = closestDist < this.interactionRadius ? closest : null;
+
+        // Play alert sound when first approaching a snake
+        if (this.nearbySnake && !this.nearbySnake.alertPlayed) {
+            const now = Date.now();
+            if (now - this.lastSnakeAlertTime > this.snakeAlertCooldown) {
+                audioManager.playSnakeNearby();
+                this.lastSnakeAlertTime = now;
+                this.nearbySnake.alertPlayed = true;
+            }
+        }
+
         return this.nearbySnake;
     }
 
@@ -611,6 +627,7 @@ export class World {
         // Head bob animation when walking
         if (this.isWalking) {
             this.walkTime += 0.16;
+            audioManager.playFootstep();
         }
         const targetHeadBob = this.isWalking
             ? Math.sin(this.walkTime * this.headBobSpeed) * this.headBobAmount
